@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>4×4 Matrix Multiplication Dashboard</title>
+    <title>Tiled 4×4 Matrix Multiplication Dashboard (TILE=4)</title>
     <style>
         * {
             margin: 0;
@@ -89,192 +89,6 @@
             overflow-y: auto;
         }
 
-        .matrix-visualization {
-            display: flex;
-            align-items: center;
-            gap: 2rem;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        .matrix-wrapper {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .matrix-title {
-            font-weight: bold;
-            font-size: 1rem;
-            color: #667eea;
-        }
-
-        .matrix-title.b {
-            color: #764ba2;
-        }
-
-        .matrix-title.c {
-            color: #28a745;
-        }
-
-        .matrix-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 4px;
-        }
-
-        .matrix-cell-large {
-            width: 50px;
-            height: 50px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #f8f9fa;
-            border: 2px solid #dee2e6;
-            border-radius: 6px;
-            font-size: 1rem;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-
-        .matrix-cell-large.highlight-a {
-            background: #ffecb3;
-            border-color: #ff9800;
-            transform: scale(1.2);
-            box-shadow: 0 6px 12px rgba(255, 152, 0, 0.5);
-            border-width: 3px;
-            z-index: 10;
-        }
-
-        .matrix-cell-large.highlight-b {
-            background: #ffecb3;
-            border-color: #ff9800;
-            transform: scale(1.2);
-            box-shadow: 0 6px 12px rgba(255, 152, 0, 0.5);
-            border-width: 3px;
-            z-index: 10;
-        }
-
-        .matrix-cell-large.highlight-c {
-            background: #c3e6cb;
-            border-color: #28a745;
-            transform: scale(1.3);
-            box-shadow: 0 8px 16px rgba(40, 167, 69, 0.6);
-            border-width: 4px;
-            z-index: 20;
-        }
-
-        .matrix-cell-large.base-a {
-            border-color: #667eea;
-            background: #f0f4ff;
-        }
-
-        .matrix-cell-large.base-b {
-            border-color: #764ba2;
-            background: #f5f0ff;
-        }
-
-        .matrix-cell-large.base-c {
-            border-color: #28a745;
-            background: #f0fff4;
-        }
-
-        .operator {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #333;
-        }
-
-        .calculation-display {
-            background: #f8f9fa;
-            border: 2px solid #667eea;
-            border-radius: 12px;
-            padding: 1.5rem 2rem;
-            text-align: center;
-            max-width: 800px;
-            width: 100%;
-        }
-
-        .calculation-formula {
-            font-family: 'Courier New', monospace;
-            font-size: 1.1rem;
-            color: #667eea;
-            font-weight: bold;
-            margin-bottom: 0.75rem;
-            line-height: 1.4;
-        }
-
-        .calculation-result {
-            font-family: 'Courier New', monospace;
-            font-size: 1.3rem;
-            color: #28a745;
-            font-weight: bold;
-            line-height: 1.4;
-        }
-
-        .ai-display {
-            background: #e7f3ff;
-            border: 2px solid #667eea;
-            border-radius: 12px;
-            padding: 1.5rem 2rem;
-            text-align: center;
-            max-width: 600px;
-            width: 100%;
-        }
-
-        .ai-title {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #667eea;
-            margin-bottom: 1rem;
-        }
-
-        .ai-metrics-large {
-            display: flex;
-            justify-content: center;
-            gap: 2rem;
-            margin-bottom: 1rem;
-        }
-
-        .metric-large {
-            background: white;
-            padding: 1rem 1.5rem;
-            border-radius: 8px;
-            text-align: center;
-            border: 2px solid #667eea;
-            min-width: 100px;
-        }
-
-        .metric-value-large {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #667eea;
-        }
-
-        .metric-label-large {
-            font-size: 0.9rem;
-            color: #6c757d;
-            margin-top: 0.25rem;
-        }
-
-        .metric-breakdown {
-            font-size: 0.75rem;
-            color: #495057;
-            margin-top: 0.5rem;
-            font-style: italic;
-        }
-
-        .ai-result {
-            font-size: 1.1rem;
-            font-weight: bold;
-            color: #dc3545;
-            background: white;
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
-            display: inline-block;
-        }
-
         .info-card {
             background: #f8f9fa;
             border-radius: 8px;
@@ -318,6 +132,220 @@
             color: #667eea;
         }
 
+        .matrix-visualization {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .matrix-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .matrix-title {
+            font-weight: bold;
+            font-size: 1rem;
+            color: #667eea;
+        }
+
+        .matrix-title.shared {
+            color: #9b59b6;
+        }
+
+        .matrix-title.result {
+            color: #27ae60;
+        }
+
+        .matrix-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 4px;
+        }
+
+        .matrix-cell-large {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .matrix-cell-large.highlight-a {
+            background: #ffecb3;
+            border-color: #ff9800;
+            transform: scale(1.15);
+            box-shadow: 0 6px 12px rgba(255, 152, 0, 0.5);
+            border-width: 3px;
+            z-index: 10;
+        }
+
+        .matrix-cell-large.highlight-b {
+            background: #ffecb3;
+            border-color: #ff9800;
+            transform: scale(1.15);
+            box-shadow: 0 6px 12px rgba(255, 152, 0, 0.5);
+            border-width: 3px;
+            z-index: 10;
+        }
+
+        .matrix-cell-large.highlight-c {
+            background: #d4edda;
+            border-color: #28a745;
+            transform: scale(1.2);
+            box-shadow: 0 8px 16px rgba(40, 167, 69, 0.6);
+            border-width: 4px;
+            z-index: 20;
+        }
+
+        .matrix-cell-large.base-a {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .matrix-cell-large.base-b {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .matrix-cell-large.base-c {
+            border-color: #27ae60;
+            background: #f0fff4;
+        }
+
+        .operator {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .calculation-display {
+            background: #f8f9fa;
+            border: 2px solid #667eea;
+            border-radius: 12px;
+            padding: 1.5rem 2rem;
+            text-align: center;
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .calculation-formula {
+            font-family: 'Courier New', monospace;
+            font-size: 1.1rem;
+            color: #667eea;
+            font-weight: bold;
+            margin-bottom: 0.75rem;
+            line-height: 1.4;
+        }
+
+        .calculation-result {
+            font-family: 'Courier New', monospace;
+            font-size: 1.3rem;
+            color: #27ae60;
+            font-weight: bold;
+            line-height: 1.4;
+        }
+
+        .ai-display {
+            background: #e8f5e9;
+            border: 2px solid #27ae60;
+            border-radius: 12px;
+            padding: 1.5rem 2rem;
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .ai-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #27ae60;
+            margin-bottom: 1rem;
+        }
+
+        .ai-metrics-large {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .metric-large {
+            background: white;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+            border: 2px solid #27ae60;
+            min-width: 100px;
+        }
+
+        .metric-value-large {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #27ae60;
+        }
+
+        .metric-label-large {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-top: 0.25rem;
+        }
+
+        .metric-breakdown {
+            font-size: 0.75rem;
+            color: #495057;
+            margin-top: 0.5rem;
+            font-style: italic;
+        }
+
+        .ai-result {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #27ae60;
+            background: white;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            display: inline-block;
+        }
+
+        .thread-loading-display {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 12px;
+            padding: 1.5rem 2rem;
+            text-align: center;
+            max-width: 700px;
+            width: 100%;
+        }
+
+        .thread-loading-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #856404;
+            margin-bottom: 1rem;
+        }
+
+        .thread-loading-content {
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            color: #856404;
+            line-height: 1.8;
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid #ffc107;
+        }
+
         .controls {
             display: flex;
             gap: 0.5rem;
@@ -357,6 +385,41 @@
             cursor: not-allowed;
         }
 
+        .tile-indicator {
+            background: #e8f4fd;
+            border: 1px solid #3498db;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .tile-indicator h4 {
+            color: #2980b9;
+            margin-bottom: 0.5rem;
+        }
+
+        .tile-indicator p {
+            font-size: 0.85rem;
+            color: #2980b9;
+        }
+
+        .shared-memory-info {
+            background: #e8f4fd;
+            border: 1px solid #3498db;
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .shared-memory-info h4 {
+            color: #2980b9;
+            margin-bottom: 0.5rem;
+        }
+
+        .shared-memory-info p {
+            font-size: 0.85rem;
+            color: #2980b9;
+        }
+
         .matrix-display {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -365,15 +428,15 @@
         }
 
         .matrix-cell {
-            width: 40px;
-            height: 40px;
+            width: 35px;
+            height: 35px;
             display: flex;
             align-items: center;
             justify-content: center;
             background: #f8f9fa;
             border: 1px solid #dee2e6;
             border-radius: 4px;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             font-weight: 600;
             transition: all 0.3s;
         }
@@ -389,16 +452,22 @@
             border-color: #28a745;
         }
 
+        .note {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 8px;
+            padding: 1rem;
+            font-size: 0.85rem;
+            color: #856404;
+            line-height: 1.4;
+        }
+
         @media (max-width: 768px) {
             .main-container {
                 flex-direction: column;
                 height: auto;
             }
-            
-            .canvas-container {
-                height: 400px;
-            }
-            
+
             .sidebar {
                 max-width: 100%;
             }
@@ -407,11 +476,11 @@
 </head>
 <body>
     <div class="header">
-        <h1>4×4 Matrix Multiplication Dashboard</h1>
+        <h1>Tiled 4×4 Matrix Multiplication (TILE=4)</h1>
         <div class="tab-container">
-            <button class="tab active">Naive</button>
+            <button class="tab" onclick="window.location.href='matmul-4x4-dashboard.html'">Naive</button>
             <button class="tab" onclick="window.location.href='matmul-tiling-dashboard.html'">TILE=2</button>
-            <button class="tab" onclick="window.location.href='matmul-tiling4-dashboard.html'">TILE=4</button>
+            <button class="tab active">TILE=4</button>
         </div>
     </div>
 
@@ -426,25 +495,25 @@
                 <div class="operator">×</div>
                 
                 <div class="matrix-wrapper">
-                    <div class="matrix-title b">Matrix B (4×4)</div>
+                    <div class="matrix-title">Matrix B (4×4)</div>
                     <div class="matrix-grid" id="matrixB-large"></div>
                 </div>
                 
                 <div class="operator">=</div>
                 
                 <div class="matrix-wrapper">
-                    <div class="matrix-title c">Matrix C = A×B</div>
+                    <div class="matrix-title result">Matrix C = A×B</div>
                     <div class="matrix-grid" id="matrixC-large"></div>
                 </div>
             </div>
             
             <div class="calculation-display">
-                <div class="calculation-formula" id="mainFormula">C[0,0] = A[0,0]×B[0,0] + A[0,1]×B[1,0] + A[0,2]×B[2,0] + A[0,3]×B[3,0]</div>
-                <div class="calculation-result" id="mainResult">1×2 + 2×3 + 3×1 + 4×4 = 27</div>
+                <div class="calculation-formula" id="mainFormula">Single tile iteration: A[0:4,0:4] × B[0:4,0:4]</div>
+                <div class="calculation-result" id="mainResult">All elements loaded once into shared memory</div>
             </div>
             
             <div class="ai-display">
-                <div class="ai-title">Arithmetic Intensity</div>
+                <div class="ai-title">Tiled Arithmetic Intensity (TILE=4)</div>
                 <div class="ai-metrics-large">
                     <div class="metric-large">
                         <div class="metric-value-large">8</div>
@@ -452,39 +521,62 @@
                         <div class="metric-breakdown">4 multiplies + 4 adds</div>
                     </div>
                     <div class="metric-large">
-                        <div class="metric-value-large">32</div>
+                        <div class="metric-value-large">8</div>
                         <div class="metric-label-large">Bytes</div>
-                        <div class="metric-breakdown">8 elements × 4 bytes</div>
+                        <div class="metric-breakdown">2 elements × 4 bytes</div>
                     </div>
                 </div>
-                <div class="ai-result">AI = 8/32 = 0.25 FLOP/byte</div>
+                <div class="ai-result">AI = 8/8 = 1.0 FLOP/byte (4× improvement!)</div>
+            </div>
+
+            <div class="thread-loading-display">
+                <div class="thread-loading-title">Thread Loading Details (16 threads)</div>
+                <div class="thread-loading-content" id="mainThreadLoading">
+                    Each of the 16 threads loads one element from A and one from B into shared memory
+                </div>
             </div>
         </div>
 
         <div class="sidebar">
             <div class="step-indicator">
                 <div class="step-number" id="stepNumber">1</div>
-                <div class="step-text" id="stepText">Computing C[0,0]</div>
+                <div class="step-text" id="stepText">Complete Matrix (Single Tile)</div>
+            </div>
+
+            <div class="note">
+                <strong>Note:</strong> With TILE=4 on a 4×4 matrix, the entire matrix fits in one tile. This shows the maximum theoretical improvement for this matrix size, but in practice TILE=16 is used for larger matrices.
+            </div>
+
+            <div class="tile-indicator">
+                <h4>Tile Configuration</h4>
+                <p id="tileOperation">Single 4×4 tile covers entire matrix</p>
+            </div>
+
+            <div class="shared-memory-info">
+                <h4>Shared Memory Benefit</h4>
+                <p id="sharedMemoryBenefit">Each element loaded once, reused by 4 threads → 4× fewer global reads vs naive</p>
             </div>
 
             <div class="info-card">
-                <h3>Current Operation</h3>
-                <p id="operationDesc">Row 0 of A × Column 0 of B</p>
+                <h3>Shared Memory A (4×4)</h3>
+                <div class="matrix-display" id="sharedA"></div>
             </div>
 
             <div class="info-card">
-                <h3>Matrix A (4×4)</h3>
-                <div class="matrix-display" id="matrixA"></div>
+                <h3>Shared Memory B (4×4)</h3>
+                <div class="matrix-display" id="sharedB"></div>
             </div>
 
             <div class="info-card">
-                <h3>Matrix B (4×4)</h3>
-                <div class="matrix-display" id="matrixB"></div>
+                <h3>Accumulator Progress</h3>
+                <p id="accumulatorProgress" style="font-size: 0.85rem; color: #555; line-height: 1.4;">
+                    All 16 threads compute their result in one iteration
+                </p>
             </div>
 
             <div class="controls">
-                <button class="btn-secondary" id="prevBtn" onclick="previousStep()">← Previous</button>
-                <button class="btn-primary" id="nextBtn" onclick="nextStep()">Next →</button>
+                <button class="btn-secondary" id="prevBtn" onclick="previousStep()" disabled>← Previous</button>
+                <button class="btn-primary" id="nextBtn" onclick="nextStep()" disabled>Next →</button>
             </div>
         </div>
     </div>
@@ -521,8 +613,9 @@
             }
         }
 
+        // TILE=4 means the entire 4x4 matrix is one tile
         let currentStep = 0;
-        const totalSteps = 16; // 4x4 = 16 elements
+        const totalSteps = 1; // Only one iteration needed
 
         // Initialize large matrix displays
         function initializeLargeMatrices() {
@@ -546,98 +639,64 @@
             }
         }
 
-        // Update the visualization with highlights for current step
+        // Update the visualization with highlights
         function updateVisualization() {
-            const row = Math.floor(currentStep / 4);
-            const col = currentStep % 4;
-
-            // Reset all highlights
+            // Highlight entire matrices since they're all loaded at once
             document.querySelectorAll('.matrix-cell-large').forEach(cell => {
                 cell.classList.remove('highlight-a', 'highlight-b', 'highlight-c');
             });
 
-            // Highlight current row in A
-            for (let j = 0; j < 4; j++) {
-                const cell = document.getElementById(`a-${row}-${j}`);
-                if (cell) cell.classList.add('highlight-a');
-            }
-
-            // Highlight current column in B
+            // Highlight all of A and B as being loaded
             for (let i = 0; i < 4; i++) {
-                const cell = document.getElementById(`b-${i}-${col}`);
-                if (cell) cell.classList.add('highlight-b');
+                for (let j = 0; j < 4; j++) {
+                    document.getElementById(`a-${i}-${j}`).classList.add('highlight-a');
+                    document.getElementById(`b-${i}-${j}`).classList.add('highlight-b');
+                    document.getElementById(`c-${i}-${j}`).classList.add('highlight-c');
+                }
             }
-
-            // Highlight current result cell in C
-            const resultCell = document.getElementById(`c-${row}-${col}`);
-            if (resultCell) resultCell.classList.add('highlight-c');
         }
 
         // Update sidebar information
         function updateSidebar() {
-            const row = Math.floor(currentStep / 4);
-            const col = currentStep % 4;
-
             document.getElementById('stepNumber').textContent = currentStep + 1;
-            document.getElementById('stepText').textContent = `Computing C[${row},${col}]`;
-            document.getElementById('operationDesc').textContent = `Row ${row} of A × Column ${col} of B`;
-
-            // Update matrix displays with highlights
-            updateMatrixDisplay('matrixA', matrixA, row, -1);
-            updateMatrixDisplay('matrixB', matrixB, -1, col);
-
-            // Update calculation in main display
-            let formula = `C[${row},${col}] = `;
-            let calculation = '';
-            for (let k = 0; k < 4; k++) {
-                formula += `A[${row},${k}]×B[${k},${col}]`;
-                if (k < 3) formula += ' + ';
-                calculation += `${matrixA[row][k]}×${matrixB[k][col]}`;
-                if (k < 3) calculation += ' + ';
+            document.getElementById('stepText').textContent = 'Complete Matrix (Single Tile)';
+            
+            // Update shared memory displays with full matrices
+            updateSharedMemory('sharedA', matrixA);
+            updateSharedMemory('sharedB', matrixB);
+            
+            // Generate thread loading explanation
+            let threadLoadingHTML = '<strong>16 threads cooperatively load:</strong><br>';
+            let threadCount = 0;
+            for (let i = 0; i < 4; i++) {
+                for (let j = 0; j < 4; j++) {
+                    threadLoadingHTML += `Thread (${i},${j}): sA[${i},${j}]=${matrixA[i][j]}, sB[${i},${j}]=${matrixB[i][j]}<br>`;
+                    threadCount++;
+                }
             }
-            calculation += ` = ${matrixC[row][col]}`;
-
-            document.getElementById('mainFormula').textContent = formula;
-            document.getElementById('mainResult').textContent = calculation;
-
-            // Update button states
-            document.getElementById('prevBtn').disabled = currentStep === 0;
-            document.getElementById('nextBtn').disabled = currentStep === totalSteps - 1;
+            document.getElementById('mainThreadLoading').innerHTML = threadLoadingHTML;
         }
 
-        function updateMatrixDisplay(elementId, matrix, highlightRow, highlightCol) {
+        function updateSharedMemory(elementId, matrix) {
             const container = document.getElementById(elementId);
             container.innerHTML = '';
             
             for (let i = 0; i < 4; i++) {
                 for (let j = 0; j < 4; j++) {
                     const cell = document.createElement('div');
-                    cell.className = 'matrix-cell';
+                    cell.className = 'matrix-cell highlight';
                     cell.textContent = matrix[i][j];
-                    
-                    if (i === highlightRow || j === highlightCol) {
-                        cell.classList.add('highlight');
-                    }
-                    
                     container.appendChild(cell);
                 }
             }
         }
 
         function nextStep() {
-            if (currentStep < totalSteps - 1) {
-                currentStep++;
-                updateVisualization();
-                updateSidebar();
-            }
+            // No next step - single tile implementation
         }
 
         function previousStep() {
-            if (currentStep > 0) {
-                currentStep--;
-                updateVisualization();
-                updateSidebar();
-            }
+            // No previous step - single tile implementation
         }
 
         // Initialize
@@ -645,15 +704,6 @@
             initializeLargeMatrices();
             updateVisualization();
             updateSidebar();
-        });
-
-        // Keyboard navigation
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowRight' || e.key === ' ') {
-                nextStep();
-            } else if (e.key === 'ArrowLeft') {
-                previousStep();
-            }
         });
     </script>
 </body>
