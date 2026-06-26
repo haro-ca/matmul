@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>4×4 Matrix Multiplication Dashboard</title>
+    <title>Tiled 4×4 Matrix Multiplication Dashboard</title>
     <style>
         * {
             margin: 0;
@@ -13,7 +13,7 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -31,7 +31,7 @@
 
         .header h1 {
             font-size: 1.5rem;
-            color: #667eea;
+            color: #f5576c;
         }
 
         .tab-container {
@@ -50,7 +50,7 @@
         }
 
         .tab.active {
-            background: #667eea;
+            background: #f5576c;
             color: white;
         }
 
@@ -89,6 +89,49 @@
             overflow-y: auto;
         }
 
+        .info-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1rem;
+            border-left: 4px solid #f5576c;
+        }
+
+        .info-card h3 {
+            color: #f5576c;
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .info-card p {
+            font-size: 0.9rem;
+            line-height: 1.5;
+            color: #555;
+        }
+
+        .step-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .step-number {
+            background: #f5576c;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .step-text {
+            font-weight: 600;
+            color: #f5576c;
+        }
+
         .matrix-visualization {
             display: flex;
             align-items: center;
@@ -107,15 +150,15 @@
         .matrix-title {
             font-weight: bold;
             font-size: 1rem;
-            color: #667eea;
+            color: #f5576c;
         }
 
-        .matrix-title.b {
-            color: #764ba2;
+        .matrix-title.shared {
+            color: #9b59b6;
         }
 
-        .matrix-title.c {
-            color: #28a745;
+        .matrix-title.result {
+            color: #27ae60;
         }
 
         .matrix-grid {
@@ -156,28 +199,28 @@
             z-index: 10;
         }
 
-        .matrix-cell-large.highlight-c {
-            background: #c3e6cb;
-            border-color: #28a745;
-            transform: scale(1.3);
-            box-shadow: 0 8px 16px rgba(40, 167, 69, 0.6);
-            border-width: 4px;
-            z-index: 20;
+        .matrix-cell-large.highlight-shared {
+            background: #e8daef;
+            border-color: #9b59b6;
+            transform: scale(1.15);
+            box-shadow: 0 6px 12px rgba(155, 89, 182, 0.5);
+            border-width: 3px;
+            z-index: 15;
         }
 
         .matrix-cell-large.base-a {
-            border-color: #667eea;
-            background: #f0f4ff;
+            border-color: #f5576c;
+            background: #fff0f3;
         }
 
         .matrix-cell-large.base-b {
-            border-color: #764ba2;
-            background: #f5f0ff;
+            border-color: #f5576c;
+            background: #fff0f3;
         }
 
-        .matrix-cell-large.base-c {
-            border-color: #28a745;
-            background: #f0fff4;
+        .matrix-cell-large.base-shared {
+            border-color: #9b59b6;
+            background: #f5f0ff;
         }
 
         .operator {
@@ -188,7 +231,7 @@
 
         .calculation-display {
             background: #f8f9fa;
-            border: 2px solid #667eea;
+            border: 2px solid #f5576c;
             border-radius: 12px;
             padding: 1.5rem 2rem;
             text-align: center;
@@ -199,7 +242,7 @@
         .calculation-formula {
             font-family: 'Courier New', monospace;
             font-size: 1.1rem;
-            color: #667eea;
+            color: #f5576c;
             font-weight: bold;
             margin-bottom: 0.75rem;
             line-height: 1.4;
@@ -208,14 +251,14 @@
         .calculation-result {
             font-family: 'Courier New', monospace;
             font-size: 1.3rem;
-            color: #28a745;
+            color: #27ae60;
             font-weight: bold;
             line-height: 1.4;
         }
 
         .ai-display {
-            background: #e7f3ff;
-            border: 2px solid #667eea;
+            background: #e8f5e9;
+            border: 2px solid #27ae60;
             border-radius: 12px;
             padding: 1.5rem 2rem;
             text-align: center;
@@ -226,7 +269,7 @@
         .ai-title {
             font-size: 1.2rem;
             font-weight: bold;
-            color: #667eea;
+            color: #27ae60;
             margin-bottom: 1rem;
         }
 
@@ -242,14 +285,14 @@
             padding: 1rem 1.5rem;
             border-radius: 8px;
             text-align: center;
-            border: 2px solid #667eea;
+            border: 2px solid #27ae60;
             min-width: 100px;
         }
 
         .metric-value-large {
             font-size: 2rem;
             font-weight: bold;
-            color: #667eea;
+            color: #27ae60;
         }
 
         .metric-label-large {
@@ -268,54 +311,11 @@
         .ai-result {
             font-size: 1.1rem;
             font-weight: bold;
-            color: #dc3545;
+            color: #27ae60;
             background: white;
             padding: 0.5rem 1rem;
             border-radius: 6px;
             display: inline-block;
-        }
-
-        .info-card {
-            background: #f8f9fa;
-            border-radius: 8px;
-            padding: 1rem;
-            border-left: 4px solid #667eea;
-        }
-
-        .info-card h3 {
-            color: #667eea;
-            margin-bottom: 0.5rem;
-            font-size: 1rem;
-        }
-
-        .info-card p {
-            font-size: 0.9rem;
-            line-height: 1.5;
-            color: #555;
-        }
-
-        .step-indicator {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-        }
-
-        .step-number {
-            background: #667eea;
-            color: white;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-        }
-
-        .step-text {
-            font-weight: 600;
-            color: #667eea;
         }
 
         .controls {
@@ -335,12 +335,12 @@
         }
 
         .btn-primary {
-            background: #667eea;
+            background: #f5576c;
             color: white;
         }
 
         .btn-primary:hover {
-            background: #5568d3;
+            background: #e74c3c;
         }
 
         .btn-secondary {
@@ -357,23 +357,58 @@
             cursor: not-allowed;
         }
 
+        .tile-indicator {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .tile-indicator h4 {
+            color: #856404;
+            margin-bottom: 0.5rem;
+        }
+
+        .tile-indicator p {
+            font-size: 0.85rem;
+            color: #856404;
+        }
+
+        .shared-memory-info {
+            background: #e8f4fd;
+            border: 1px solid #3498db;
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .shared-memory-info h4 {
+            color: #2980b9;
+            margin-bottom: 0.5rem;
+        }
+
+        .shared-memory-info p {
+            font-size: 0.85rem;
+            color: #2980b9;
+        }
+
         .matrix-display {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(2, 1fr);
             gap: 0.25rem;
             margin-top: 0.5rem;
         }
 
         .matrix-cell {
-            width: 40px;
-            height: 40px;
+            width: 35px;
+            height: 35px;
             display: flex;
             align-items: center;
             justify-content: center;
             background: #f8f9fa;
             border: 1px solid #dee2e6;
             border-radius: 4px;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             font-weight: 600;
             transition: all 0.3s;
         }
@@ -394,11 +429,7 @@
                 flex-direction: column;
                 height: auto;
             }
-            
-            .canvas-container {
-                height: 400px;
-            }
-            
+
             .sidebar {
                 max-width: 100%;
             }
@@ -407,10 +438,10 @@
 </head>
 <body>
     <div class="header">
-        <h1>4×4 Matrix Multiplication Dashboard</h1>
+        <h1>Tiled 4×4 Matrix Multiplication (TILE=2)</h1>
         <div class="tab-container">
-            <button class="tab active">Naive</button>
-            <button class="tab" onclick="window.location.href='matmul-tiling-dashboard.html'">Tiled</button>
+            <button class="tab" onclick="window.location.href='matmul-4x4-dashboard.html'">Naive</button>
+            <button class="tab active">Tiled</button>
         </div>
     </div>
 
@@ -425,25 +456,25 @@
                 <div class="operator">×</div>
                 
                 <div class="matrix-wrapper">
-                    <div class="matrix-title b">Matrix B (4×4)</div>
+                    <div class="matrix-title">Matrix B (4×4)</div>
                     <div class="matrix-grid" id="matrixB-large"></div>
                 </div>
                 
                 <div class="operator">=</div>
                 
                 <div class="matrix-wrapper">
-                    <div class="matrix-title c">Matrix C = A×B</div>
+                    <div class="matrix-title result">Matrix C = A×B</div>
                     <div class="matrix-grid" id="matrixC-large"></div>
                 </div>
             </div>
             
             <div class="calculation-display">
-                <div class="calculation-formula" id="mainFormula">C[0,0] = A[0,0]×B[0,0] + A[0,1]×B[1,0] + A[0,2]×B[2,0] + A[0,3]×B[3,0]</div>
-                <div class="calculation-result" id="mainResult">1×2 + 2×3 + 3×1 + 4×4 = 27</div>
+                <div class="calculation-formula" id="mainFormula">Loading tile iteration 0...</div>
+                <div class="calculation-result" id="mainResult">Loading shared memory operation...</div>
             </div>
             
             <div class="ai-display">
-                <div class="ai-title">Arithmetic Intensity</div>
+                <div class="ai-title">Tiled Arithmetic Intensity (TILE=2)</div>
                 <div class="ai-metrics-large">
                     <div class="metric-large">
                         <div class="metric-value-large">8</div>
@@ -451,34 +482,46 @@
                         <div class="metric-breakdown">4 multiplies + 4 adds</div>
                     </div>
                     <div class="metric-large">
-                        <div class="metric-value-large">32</div>
+                        <div class="metric-value-large">16</div>
                         <div class="metric-label-large">Bytes</div>
-                        <div class="metric-breakdown">8 elements × 4 bytes</div>
+                        <div class="metric-breakdown">4 elements × 4 bytes</div>
                     </div>
                 </div>
-                <div class="ai-result">AI = 8/32 = 0.25 FLOP/byte</div>
+                <div class="ai-result">AI = 8/16 = 0.5 FLOP/byte (2× improvement!)</div>
             </div>
         </div>
 
         <div class="sidebar">
             <div class="step-indicator">
                 <div class="step-number" id="stepNumber">1</div>
-                <div class="step-text" id="stepText">Computing C[0,0]</div>
+                <div class="step-text" id="stepText">Block (0,0), Tile 0</div>
+            </div>
+
+            <div class="tile-indicator">
+                <h4>Current Tile Operation</h4>
+                <p id="tileOperation">Loading A[0:2,0:2] and B[0:2,0:2] into shared memory</p>
+            </div>
+
+            <div class="shared-memory-info">
+                <h4>Shared Memory Benefit</h4>
+                <p id="sharedMemoryBenefit">Each element loaded once, reused by 2 threads → 2× fewer global reads</p>
             </div>
 
             <div class="info-card">
-                <h3>Current Operation</h3>
-                <p id="operationDesc">Row 0 of A × Column 0 of B</p>
+                <h3>Shared Memory A (2×2)</h3>
+                <div class="matrix-display" id="sharedA"></div>
             </div>
 
             <div class="info-card">
-                <h3>Matrix A (4×4)</h3>
-                <div class="matrix-display" id="matrixA"></div>
+                <h3>Shared Memory B (2×2)</h3>
+                <div class="matrix-display" id="sharedB"></div>
             </div>
 
             <div class="info-card">
-                <h3>Matrix B (4×4)</h3>
-                <div class="matrix-display" id="matrixB"></div>
+                <h3>Accumulator Progress</h3>
+                <p id="accumulatorProgress" style="font-size: 0.85rem; color: #555; line-height: 1.4;">
+                    Thread (0,0): acc = 0 (initial)
+                </p>
             </div>
 
             <div class="controls">
@@ -520,8 +563,81 @@
             }
         }
 
+        // Tiling configuration
+        const TILE = 2;
+        const totalTiles = 4; // (4/TILE)² = 4 tiles per matrix
+        
+        // Steps: For each of the 4 result tiles, we have 2 iterations (since K/TILE = 4/2 = 2)
+        // Total steps = 4 tiles × 2 iterations = 8 steps
         let currentStep = 0;
-        const totalSteps = 16; // 4x4 = 16 elements
+        const totalSteps = 8;
+
+        // Define the sequence of operations
+        const stepSequence = [
+            // Block (0,0), Tile iteration 0
+            { blockRow: 0, blockCol: 0, tileIter: 0, 
+              aTile: [0, 0], bTile: [0, 0], 
+              aRange: "A[0:2,0:2]", bRange: "B[0:2,0:2]",
+              sharedA: [[1, 2], [5, 6]], sharedB: [[2, 3], [3, 1]],
+              partial: [[0, 0], [0, 0]], 
+              accumulator: "Thread (0,0): acc = 1×2 + 2×3 = 8 (PARTIAL)" },
+            
+            // Block (0,0), Tile iteration 1
+            { blockRow: 0, blockCol: 0, tileIter: 1,
+              aTile: [0, 1], bTile: [1, 0],
+              aRange: "A[0:2,2:4]", bRange: "B[2:4,0:2]",
+              sharedA: [[3, 4], [7, 8]], sharedB: [[1, 4], [4, 2]],
+              partial: [[8, 10], [20, 22]],
+              accumulator: "Thread (0,0): acc = 8 + (3×1 + 4×4) = 27 (COMPLETE)" },
+            
+            // Block (0,1), Tile iteration 0
+            { blockRow: 0, blockCol: 1, tileIter: 0,
+              aTile: [0, 0], bTile: [0, 1],
+              aRange: "A[0:2,0:2]", bRange: "B[0:2,2:4]",
+              sharedA: [[1, 2], [5, 6]], sharedB: [[1, 4], [4, 2]],
+              partial: [[0, 0], [0, 0]],
+              accumulator: "Thread (0,0): acc = 1×1 + 2×4 = 9 (PARTIAL)" },
+            
+            // Block (0,1), Tile iteration 1
+            { blockRow: 0, blockCol: 1, tileIter: 1,
+              aTile: [0, 1], bTile: [1, 1],
+              aRange: "A[0:2,2:4]", bRange: "B[2:4,2:4]",
+              sharedA: [[3, 4], [7, 8]], sharedB: [[2, 3], [3, 1]],
+              partial: [[9, 11], [29, 31]],
+              accumulator: "Thread (0,0): acc = 9 + (3×2 + 4×3) = 33 (COMPLETE)" },
+            
+            // Block (1,0), Tile iteration 0
+            { blockRow: 1, blockCol: 0, tileIter: 0,
+              aTile: [1, 0], bTile: [0, 0],
+              aRange: "A[2:4,0:2]", bRange: "B[0:2,0:2]",
+              sharedA: [[9, 10], [13, 14]], sharedB: [[2, 3], [3, 1]],
+              partial: [[0, 0], [0, 0]],
+              accumulator: "Thread (0,0): acc = 9×2 + 10×3 = 48 (PARTIAL)" },
+            
+            // Block (1,0), Tile iteration 1
+            { blockRow: 1, blockCol: 0, tileIter: 1,
+              aTile: [1, 1], bTile: [1, 0],
+              aRange: "A[2:4,2:4]", bRange: "B[2:4,0:2]",
+              sharedA: [[11, 12], [15, 16]], sharedB: [[1, 4], [4, 2]],
+              partial: [[59, 57], [87, 85]],
+              accumulator: "Thread (0,0): acc = 48 + (11×1 + 12×4) = 107 (COMPLETE)" },
+            
+            // Block (1,1), Tile iteration 0
+            { blockRow: 1, blockCol: 1, tileIter: 0,
+              aTile: [1, 0], bTile: [0, 1],
+              aRange: "A[2:4,0:2]", bRange: "B[0:2,2:4]",
+              sharedA: [[9, 10], [13, 14]], sharedB: [[1, 4], [4, 2]],
+              partial: [[0, 0], [0, 0]],
+              accumulator: "Thread (0,0): acc = 9×1 + 10×4 = 49 (PARTIAL)" },
+            
+            // Block (1,1), Tile iteration 1
+            { blockRow: 1, blockCol: 1, tileIter: 1,
+              aTile: [1, 1], bTile: [1, 1],
+              aRange: "A[2:4,2:4]", bRange: "B[2:4,2:4]",
+              sharedA: [[11, 12], [15, 16]], sharedB: [[2, 3], [3, 1]],
+              partial: [[71, 69], [103, 101]],
+              accumulator: "Thread (0,0): acc = 49 + (11×2 + 12×3) = 107 (COMPLETE)" }
+        ];
 
         // Initialize large matrix displays
         function initializeLargeMatrices() {
@@ -547,77 +663,83 @@
 
         // Update the visualization with highlights for current step
         function updateVisualization() {
-            const row = Math.floor(currentStep / 4);
-            const col = currentStep % 4;
-
+            const step = stepSequence[currentStep];
+            
             // Reset all highlights
             document.querySelectorAll('.matrix-cell-large').forEach(cell => {
-                cell.classList.remove('highlight-a', 'highlight-b', 'highlight-c');
+                cell.classList.remove('highlight-a', 'highlight-b', 'highlight-shared');
             });
 
-            // Highlight current row in A
-            for (let j = 0; j < 4; j++) {
-                const cell = document.getElementById(`a-${row}-${j}`);
-                if (cell) cell.classList.add('highlight-a');
+            // Highlight current tile in A
+            const aTileRow = step.aTile[0] * TILE;
+            const aTileCol = step.aTile[1] * TILE;
+            for (let i = 0; i < TILE; i++) {
+                for (let j = 0; j < TILE; j++) {
+                    const cell = document.getElementById(`a-${aTileRow + i}-${aTileCol + j}`);
+                    if (cell) cell.classList.add('highlight-a');
+                }
             }
 
-            // Highlight current column in B
-            for (let i = 0; i < 4; i++) {
-                const cell = document.getElementById(`b-${i}-${col}`);
-                if (cell) cell.classList.add('highlight-b');
+            // Highlight current tile in B
+            const bTileRow = step.bTile[0] * TILE;
+            const bTileCol = step.bTile[1] * TILE;
+            for (let i = 0; i < TILE; i++) {
+                for (let j = 0; j < TILE; j++) {
+                    const cell = document.getElementById(`b-${bTileRow + i}-${bTileCol + j}`);
+                    if (cell) cell.classList.add('highlight-b');
+                }
             }
 
-            // Highlight current result cell in C
-            const resultCell = document.getElementById(`c-${row}-${col}`);
-            if (resultCell) resultCell.classList.add('highlight-c');
+            // Highlight current result block in C
+            const cBlockRow = step.blockRow * TILE;
+            const cBlockCol = step.blockCol * TILE;
+            for (let i = 0; i < TILE; i++) {
+                for (let j = 0; j < TILE; j++) {
+                    const cell = document.getElementById(`c-${cBlockRow + i}-${cBlockCol + j}`);
+                    if (cell) cell.classList.add('highlight-shared');
+                }
+            }
         }
 
         // Update sidebar information
         function updateSidebar() {
-            const row = Math.floor(currentStep / 4);
-            const col = currentStep % 4;
-
+            const step = stepSequence[currentStep];
+            
             document.getElementById('stepNumber').textContent = currentStep + 1;
-            document.getElementById('stepText').textContent = `Computing C[${row},${col}]`;
-            document.getElementById('operationDesc').textContent = `Row ${row} of A × Column ${col} of B`;
-
-            // Update matrix displays with highlights
-            updateMatrixDisplay('matrixA', matrixA, row, -1);
-            updateMatrixDisplay('matrixB', matrixB, -1, col);
-
-            // Update calculation in main display
-            let formula = `C[${row},${col}] = `;
-            let calculation = '';
-            for (let k = 0; k < 4; k++) {
-                formula += `A[${row},${k}]×B[${k},${col}]`;
-                if (k < 3) formula += ' + ';
-                calculation += `${matrixA[row][k]}×${matrixB[k][col]}`;
-                if (k < 3) calculation += ' + ';
-            }
-            calculation += ` = ${matrixC[row][col]}`;
-
-            document.getElementById('mainFormula').textContent = formula;
-            document.getElementById('mainResult').textContent = calculation;
-
+            document.getElementById('stepText').textContent = 
+                `Block (${step.blockRow},${step.blockCol}), Tile ${step.tileIter}`;
+            document.getElementById('tileOperation').textContent = 
+                `Loading ${step.aRange} and ${step.bRange} into shared memory`;
+            
+            // Update shared memory displays
+            updateSharedMemory('sharedA', step.sharedA);
+            updateSharedMemory('sharedB', step.sharedB);
+            
+            document.getElementById('accumulatorProgress').textContent = step.accumulator;
+            
+            // Update main calculation display
+            const isComplete = step.tileIter === 1;
+            const operation = isComplete ? "COMPLETE" : "PARTIAL";
+            
+            document.getElementById('mainFormula').textContent = 
+                `Block (${step.blockRow},${step.blockCol}) iteration ${step.tileIter}: ${step.aRange} × ${step.bRange}`;
+            document.getElementById('mainResult').textContent = 
+                `Shared memory: ${step.aRange} → sA, ${step.bRange} → sB | Status: ${operation}`;
+            
             // Update button states
             document.getElementById('prevBtn').disabled = currentStep === 0;
             document.getElementById('nextBtn').disabled = currentStep === totalSteps - 1;
         }
 
-        function updateMatrixDisplay(elementId, matrix, highlightRow, highlightCol) {
+        function updateSharedMemory(elementId, matrix) {
             const container = document.getElementById(elementId);
             container.innerHTML = '';
             
-            for (let i = 0; i < 4; i++) {
-                for (let j = 0; j < 4; j++) {
+            for (let i = 0; i < 2; i++) {
+                for (let j = 0; j < 2; j++) {
                     const cell = document.createElement('div');
-                    cell.className = 'matrix-cell';
+                    cell.className = 'matrix-cell highlight';
                     cell.textContent = matrix[i][j];
-                    
-                    if (i === highlightRow || j === highlightCol) {
-                        cell.classList.add('highlight');
-                    }
-                    
                     container.appendChild(cell);
                 }
             }
