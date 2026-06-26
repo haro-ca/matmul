@@ -524,6 +524,33 @@
                 </p>
             </div>
 
+            <div class="info-card">
+                <h3>Thread Loading Details</h3>
+                <div id="threadLoading" style="font-size: 0.75rem; color: #555; line-height: 1.6; font-family: 'Courier New', monospace;">
+                    Thread (0,0): loaded sA[0,0]=a00, sB[0,0]=b00<br>
+                    Thread (1,0): loaded sA[0,1]=a01, sB[0,1]=b01<br>
+                    Thread (0,1): loaded sA[1,0]=a10, sB[1,0]=b10<br>
+                    Thread (1,1): loaded sA[1,1]=a11, sB[1,1]=b11
+                </div>
+            </div>
+
+            <div class="info-card">
+                <h3>Accumulator Evolution</h3>
+                <div id="accumulatorEvolution" style="font-size: 0.75rem; color: #555; line-height: 1.6; font-family: 'Courier New', monospace;">
+                    <strong>After iteration t=0:</strong><br>
+                    Thread (0,0): acc = a00×b00 + a01×b10 (partial)<br>
+                    Thread (1,0): acc = a00×b01 + a01×b11 (partial)<br>
+                    Thread (0,1): acc = a10×b00 + a11×b10 (partial)<br>
+                    Thread (1,1): acc = a10×b01 + a11×b11 (partial)<br>
+                    <br>
+                    <strong>After iteration t=1:</strong><br>
+                    Thread (0,0): acc = a00×b00 + a01×b10 + a02×b20 + a03×b30 (complete)<br>
+                    Thread (1,0): acc = a00×b01 + a01×b11 + a02×b21 + a03×b31 (complete)<br>
+                    Thread (0,1): acc = a10×b00 + a11×b10 + a12×b20 + a13×b30 (complete)<br>
+                    Thread (1,1): acc = a10×b01 + a11×b11 + a12×b21 + a13×b31 (complete)
+                </div>
+            </div>
+
             <div class="controls">
                 <button class="btn-secondary" id="prevBtn" onclick="previousStep()">← Previous</button>
                 <button class="btn-primary" id="nextBtn" onclick="nextStep()">Next →</button>
@@ -575,68 +602,84 @@
         // Define the sequence of operations
         const stepSequence = [
             // Block (0,0), Tile iteration 0
-            { blockRow: 0, blockCol: 0, tileIter: 0, 
-              aTile: [0, 0], bTile: [0, 0], 
+            { blockRow: 0, blockCol: 0, tileIter: 0,
+              aTile: [0, 0], bTile: [0, 0],
               aRange: "A[0:2,0:2]", bRange: "B[0:2,0:2]",
               sharedA: [[1, 2], [5, 6]], sharedB: [[2, 3], [3, 1]],
-              partial: [[0, 0], [0, 0]], 
-              accumulator: "Thread (0,0): acc = 1×2 + 2×3 = 8 (PARTIAL)" },
-            
+              partial: [[0, 0], [0, 0]],
+              accumulator: "Thread (0,0): acc = 1×2 + 2×3 = 8 (PARTIAL)",
+              threadLoading: "Thread (0,0): loaded sA[0,0]=1, sB[0,0]=2<br>Thread (1,0): loaded sA[0,1]=2, sB[0,1]=3<br>Thread (0,1): loaded sA[1,0]=5, sB[1,0]=3<br>Thread (1,1): loaded sA[1,1]=6, sB[1,1]=1",
+              accumulatorEvo: "<strong>After iteration t=0:</strong><br>Thread (0,0): acc = 1×2 + 2×3 = 8 (partial)<br>Thread (1,0): acc = 1×3 + 2×1 = 5 (partial)<br>Thread (0,1): acc = 5×2 + 6×3 = 28 (partial)<br>Thread (1,1): acc = 5×3 + 6×1 = 21 (partial)" },
+
             // Block (0,0), Tile iteration 1
             { blockRow: 0, blockCol: 0, tileIter: 1,
               aTile: [0, 1], bTile: [1, 0],
               aRange: "A[0:2,2:4]", bRange: "B[2:4,0:2]",
               sharedA: [[3, 4], [7, 8]], sharedB: [[1, 4], [4, 2]],
               partial: [[8, 10], [20, 22]],
-              accumulator: "Thread (0,0): acc = 8 + (3×1 + 4×4) = 27 (COMPLETE)" },
-            
+              accumulator: "Thread (0,0): acc = 8 + (3×1 + 4×4) = 27 (COMPLETE)",
+              threadLoading: "Thread (0,0): loaded sA[0,0]=3, sB[0,0]=1<br>Thread (1,0): loaded sA[0,1]=4, sB[0,1]=4<br>Thread (0,1): loaded sA[1,0]=7, sB[1,0]=4<br>Thread (1,1): loaded sA[1,1]=8, sB[1,1]=2",
+              accumulatorEvo: "<strong>After iteration t=1:</strong><br>Thread (0,0): acc = 8 + (3×1 + 4×4) = 27 (complete)<br>Thread (1,0): acc = 5 + (3×4 + 4×2) = 25 (complete)<br>Thread (0,1): acc = 28 + (7×1 + 8×4) = 67 (complete)<br>Thread (1,1): acc = 21 + (7×4 + 8×2) = 63 (complete)" },
+
             // Block (0,1), Tile iteration 0
             { blockRow: 0, blockCol: 1, tileIter: 0,
               aTile: [0, 0], bTile: [0, 1],
               aRange: "A[0:2,0:2]", bRange: "B[0:2,2:4]",
               sharedA: [[1, 2], [5, 6]], sharedB: [[1, 4], [4, 2]],
               partial: [[0, 0], [0, 0]],
-              accumulator: "Thread (0,0): acc = 1×1 + 2×4 = 9 (PARTIAL)" },
-            
+              accumulator: "Thread (0,0): acc = 1×1 + 2×4 = 9 (PARTIAL)",
+              threadLoading: "Thread (0,0): loaded sA[0,0]=1, sB[0,0]=1<br>Thread (1,0): loaded sA[0,1]=2, sB[0,1]=4<br>Thread (0,1): loaded sA[1,0]=5, sB[1,0]=4<br>Thread (1,1): loaded sA[1,1]=6, sB[1,1]=2",
+              accumulatorEvo: "<strong>After iteration t=0:</strong><br>Thread (0,0): acc = 1×1 + 2×4 = 9 (partial)<br>Thread (1,0): acc = 1×4 + 2×2 = 8 (partial)<br>Thread (0,1): acc = 5×1 + 6×4 = 29 (partial)<br>Thread (1,1): acc = 5×4 + 6×2 = 32 (partial)" },
+
             // Block (0,1), Tile iteration 1
             { blockRow: 0, blockCol: 1, tileIter: 1,
               aTile: [0, 1], bTile: [1, 1],
               aRange: "A[0:2,2:4]", bRange: "B[2:4,2:4]",
               sharedA: [[3, 4], [7, 8]], sharedB: [[2, 3], [3, 1]],
               partial: [[9, 11], [29, 31]],
-              accumulator: "Thread (0,0): acc = 9 + (3×2 + 4×3) = 33 (COMPLETE)" },
-            
+              accumulator: "Thread (0,0): acc = 9 + (3×2 + 4×3) = 33 (COMPLETE)",
+              threadLoading: "Thread (0,0): loaded sA[0,0]=3, sB[0,0]=2<br>Thread (1,0): loaded sA[0,1]=4, sB[0,1]=3<br>Thread (0,1): loaded sA[1,0]=7, sB[1,0]=3<br>Thread (1,1): loaded sA[1,1]=8, sB[1,1]=1",
+              accumulatorEvo: "<strong>After iteration t=1:</strong><br>Thread (0,0): acc = 9 + (3×2 + 4×3) = 33 (complete)<br>Thread (1,0): acc = 8 + (3×3 + 4×1) = 25 (complete)<br>Thread (0,1): acc = 29 + (7×2 + 8×3) = 73 (complete)<br>Thread (1,1): acc = 32 + (7×3 + 8×1) = 61 (complete)" },
+
             // Block (1,0), Tile iteration 0
             { blockRow: 1, blockCol: 0, tileIter: 0,
               aTile: [1, 0], bTile: [0, 0],
               aRange: "A[2:4,0:2]", bRange: "B[0:2,0:2]",
               sharedA: [[9, 10], [13, 14]], sharedB: [[2, 3], [3, 1]],
               partial: [[0, 0], [0, 0]],
-              accumulator: "Thread (0,0): acc = 9×2 + 10×3 = 48 (PARTIAL)" },
-            
+              accumulator: "Thread (0,0): acc = 9×2 + 10×3 = 48 (PARTIAL)",
+              threadLoading: "Thread (0,0): loaded sA[0,0]=9, sB[0,0]=2<br>Thread (1,0): loaded sA[0,1]=10, sB[0,1]=3<br>Thread (0,1): loaded sA[1,0]=13, sB[1,0]=3<br>Thread (1,1): loaded sA[1,1]=14, sB[1,1]=1",
+              accumulatorEvo: "<strong>After iteration t=0:</strong><br>Thread (0,0): acc = 9×2 + 10×3 = 48 (partial)<br>Thread (1,0): acc = 9×3 + 10×1 = 37 (partial)<br>Thread (0,1): acc = 13×2 + 14×3 = 68 (partial)<br>Thread (1,1): acc = 13×3 + 14×1 = 53 (partial)" },
+
             // Block (1,0), Tile iteration 1
             { blockRow: 1, blockCol: 0, tileIter: 1,
               aTile: [1, 1], bTile: [1, 0],
               aRange: "A[2:4,2:4]", bRange: "B[2:4,0:2]",
               sharedA: [[11, 12], [15, 16]], sharedB: [[1, 4], [4, 2]],
               partial: [[59, 57], [87, 85]],
-              accumulator: "Thread (0,0): acc = 48 + (11×1 + 12×4) = 107 (COMPLETE)" },
-            
+              accumulator: "Thread (0,0): acc = 48 + (11×1 + 12×4) = 107 (COMPLETE)",
+              threadLoading: "Thread (0,0): loaded sA[0,0]=11, sB[0,0]=1<br>Thread (1,0): loaded sA[0,1]=12, sB[0,1]=4<br>Thread (0,1): loaded sA[1,0]=15, sB[1,0]=4<br>Thread (1,1): loaded sA[1,1]=16, sB[1,1]=2",
+              accumulatorEvo: "<strong>After iteration t=1:</strong><br>Thread (0,0): acc = 48 + (11×1 + 12×4) = 107 (complete)<br>Thread (1,0): acc = 37 + (11×4 + 12×2) = 99 (complete)<br>Thread (0,1): acc = 68 + (15×1 + 16×4) = 143 (complete)<br>Thread (1,1): acc = 53 + (15×4 + 16×2) = 131 (complete)" },
+
             // Block (1,1), Tile iteration 0
             { blockRow: 1, blockCol: 1, tileIter: 0,
               aTile: [1, 0], bTile: [0, 1],
               aRange: "A[2:4,0:2]", bRange: "B[0:2,2:4]",
               sharedA: [[9, 10], [13, 14]], sharedB: [[1, 4], [4, 2]],
               partial: [[0, 0], [0, 0]],
-              accumulator: "Thread (0,0): acc = 9×1 + 10×4 = 49 (PARTIAL)" },
-            
+              accumulator: "Thread (0,0): acc = 9×1 + 10×4 = 49 (PARTIAL)",
+              threadLoading: "Thread (0,0): loaded sA[0,0]=9, sB[0,0]=1<br>Thread (1,0): loaded sA[0,1]=10, sB[0,1]=4<br>Thread (0,1): loaded sA[1,0]=13, sB[1,0]=4<br>Thread (1,1): loaded sA[1,1]=14, sB[1,1]=2",
+              accumulatorEvo: "<strong>After iteration t=0:</strong><br>Thread (0,0): acc = 9×1 + 10×4 = 49 (partial)<br>Thread (1,0): acc = 9×4 + 10×2 = 56 (partial)<br>Thread (0,1): acc = 13×1 + 14×4 = 69 (partial)<br>Thread (1,1): acc = 13×4 + 14×2 = 80 (partial)" },
+
             // Block (1,1), Tile iteration 1
             { blockRow: 1, blockCol: 1, tileIter: 1,
               aTile: [1, 1], bTile: [1, 1],
               aRange: "A[2:4,2:4]", bRange: "B[2:4,2:4]",
               sharedA: [[11, 12], [15, 16]], sharedB: [[2, 3], [3, 1]],
               partial: [[71, 69], [103, 101]],
-              accumulator: "Thread (0,0): acc = 49 + (11×2 + 12×3) = 107 (COMPLETE)" }
+              accumulator: "Thread (0,0): acc = 49 + (11×2 + 12×3) = 107 (COMPLETE)",
+              threadLoading: "Thread (0,0): loaded sA[0,0]=11, sB[0,0]=2<br>Thread (1,0): loaded sA[0,1]=12, sB[0,1]=3<br>Thread (0,1): loaded sA[1,0]=15, sB[1,0]=3<br>Thread (1,1): loaded sA[1,1]=16, sB[1,1]=1",
+              accumulatorEvo: "<strong>After iteration t=1:</strong><br>Thread (0,0): acc = 49 + (11×2 + 12×3) = 107 (complete)<br>Thread (1,0): acc = 56 + (11×3 + 12×1) = 101 (complete)<br>Thread (0,1): acc = 69 + (15×2 + 16×3) = 147 (complete)<br>Thread (1,1): acc = 80 + (15×3 + 16×1) = 141 (complete)" }
         ];
 
         // Initialize large matrix displays
@@ -704,28 +747,34 @@
         // Update sidebar information
         function updateSidebar() {
             const step = stepSequence[currentStep];
-            
+
             document.getElementById('stepNumber').textContent = currentStep + 1;
-            document.getElementById('stepText').textContent = 
+            document.getElementById('stepText').textContent =
                 `Block (${step.blockRow},${step.blockCol}), Tile ${step.tileIter}`;
-            document.getElementById('tileOperation').textContent = 
+            document.getElementById('tileOperation').textContent =
                 `Loading ${step.aRange} and ${step.bRange} into shared memory`;
-            
+
             // Update shared memory displays
             updateSharedMemory('sharedA', step.sharedA);
             updateSharedMemory('sharedB', step.sharedB);
-            
+
             document.getElementById('accumulatorProgress').textContent = step.accumulator;
-            
+
+            // Update thread loading details
+            document.getElementById('threadLoading').innerHTML = step.threadLoading;
+
+            // Update accumulator evolution
+            document.getElementById('accumulatorEvolution').innerHTML = step.accumulatorEvo;
+
             // Update main calculation display
             const isComplete = step.tileIter === 1;
             const operation = isComplete ? "COMPLETE" : "PARTIAL";
-            
-            document.getElementById('mainFormula').textContent = 
+
+            document.getElementById('mainFormula').textContent =
                 `Block (${step.blockRow},${step.blockCol}) iteration ${step.tileIter}: ${step.aRange} × ${step.bRange}`;
-            document.getElementById('mainResult').textContent = 
+            document.getElementById('mainResult').textContent =
                 `Shared memory: ${step.aRange} → sA, ${step.bRange} → sB | Status: ${operation}`;
-            
+
             // Update button states
             document.getElementById('prevBtn').disabled = currentStep === 0;
             document.getElementById('nextBtn').disabled = currentStep === totalSteps - 1;
