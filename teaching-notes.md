@@ -77,7 +77,7 @@ The goal is reasoning the kernel, not memorizing 20 lines. Concretely, by the en
 - Measure & compare GFLOPS of naive / tiled / cuBLAS, and the % of peak.
 - Select a tile size from the reuse-vs-occupancy trade-off.
 - Place a kernel on the roofline to diagnose its bottleneck.
-Part 1 — The problem: naive matmul is memory-bound (slides 6–7)
+## Part 1 — The problem: naive matmul is memory-bound (slides 6–7)
 ### Slide 6 — ¿Por qué tiling? Naive wastes bandwidth
 
 ```python
@@ -91,6 +91,17 @@ def matmul_naive(C, A, B):
         C[row, col] = acc
 ```
 Each thread reads an entire row of A and an entire column of B straight from global memory (off-chip DRAM, ~400–800 cycle latency). The GPU spends almost all its time waiting for data, not multiplying. This is memory-bound.
+
+**Thread-by-thread breakdown for 4×4 naive (TILE=2):**
+
+| Thread | Computes | Reads from A | Reads from B |
+|--------|----------|--------------|--------------|
+| (0,0) | C[0,0] | Row 0: [a00,a01,a02,a03] | Col 0: [b00,b10,b20,b30] |
+| (1,0) | C[0,1] | Row 0: [a00,a01,a02,a03] | Col 1: [b01,b11,b21,b31] |
+| (0,1) | C[1,0] | Row 1: [a10,a11,a12,a13] | Col 0: [b00,b10,b20,b30] |
+| (1,1) | C[1,1] | Row 1: [a10,a11,a12,a13] | Col 1: [b01,b11,b21,b31] |
+
+**The problem:** Threads (0,0) and (1,0) both read the same Row 0 of A, but each fetches it independently from global memory. No reuse → massive redundancy.
 
 ### Slide 7 — Intensidad aritmética: AI = FLOPs / bytes
 Arithmetic intensity (AI) = useful FLOPs ÷ bytes moved from global memory. It's the single number that decides whether you're memory- or compute-bound.
@@ -154,6 +165,38 @@ The recipe — memorize it; if the kernel breaks, walk it step by step:
 t=0: load A[:,0:2] and B[0:2,:] → sync → accumulate partial product #1.
 t=1: load A[:,2:4] and B[2:4,:] → sync → accumulate partial product #2.
 Result: C[0:2,0:2] = sum of the two partial products.
+
+**Detailed thread breakdown for Block (0,0) during iteration t=0:**
+
+| Thread | Loads to shared memory | Reads from shared memory |
+|--------|----------------------|-------------------------|
+| (0,0) | sA[0,0]=a00, sB[0,0]=b00 | Reads sA[0,0], sA[0,1] and sB[0,0], sB[1,0] |
+| (1,0) | sA[0,1]=a01, sB[0,1]=b01 | Reads sA[0,0], sA[0,1] and sB[0,1], sB[1,1] |
+| (0,1) | sA[1,0]=a10, sB[1,0]=b10 | Reads sA[1,0], sA[1,1] and sB[0,0], sB[1,0] |
+| (1,1) | sA[1,1]=a11, sB[1,1]=b11 | Reads sA[1,0], sA[1,1] and sB[0,1], sB[1,1] |
+
+**The win:** Thread (0,0) loads `a00` once, but Thread (1,0) also reads it from shared memory. 1 global load → 2 uses. With TILE=16: 1 global load → 16 uses.
+
+**Accumulator progression:**
+
+After iteration t=0 (first partial product):
+```
+Thread (0,0): acc = a00*b00 + a01*b10  (PARTIAL)
+Thread (1,0): acc = a00*b01 + a01*b11  (PARTIAL)
+Thread (0,1): acc = a10*b00 + a11*b10  (PARTIAL)
+Thread (1,1): acc = a10*b01 + a11*b11  (PARTIAL)
+```
+
+After iteration t=1 (adding second partial product):
+```
+Thread (0,0): acc = (a00*b00 + a01*b10) + (a02*b20 + a03*b30)  (COMPLETE)
+Thread (1,0): acc = (a00*b01 + a01*b11) + (a02*b21 + a03*b31)  (COMPLETE)
+Thread (0,1): acc = (a10*b00 + a11*b10) + (a12*b20 + a13*b30)  (COMPLETE)
+Thread (1,1): acc = (a10*b01 + a11*b11) + (a12*b21 + a13*b31)  (COMPLETE)
+```
+
+**Key:** The accumulator `acc` starts at 0 and accumulates across iterations — it's not reset between tiles.
+
 Teach-this: make students hand-trace this 4×4 / TILE=2 case. It is the single best cure for index confusion and for "why two syncs." If they can trace one block by hand, they understand the kernel.
 
 ### Slide 11 — Reuso: the actual saving
