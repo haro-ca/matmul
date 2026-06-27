@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tiled Matrix Multiplication - Non-multiple Dimensions</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            color: #333;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            color: #764ba2;
+        }
+
+        .tab-container {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .tab {
+            padding: 0.5rem 1rem;
+            background: #e9ecef;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .tab.active {
+            background: #764ba2;
+            color: white;
+        }
+
+        .main-container {
+            display: flex;
+            flex: 1;
+            padding: 1rem;
+            gap: 1rem;
+            height: calc(100vh - 70px);
+        }
+
+        .canvas-container {
+            flex: 2;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            overflow: auto;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1.5rem;
+        }
+
+        .sidebar {
+            flex: 1;
+            max-width: 400px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            overflow-y: auto;
+        }
+
+        .info-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1rem;
+            border-left: 4px solid #764ba2;
+        }
+
+        .info-card h3 {
+            color: #764ba2;
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .info-card p {
+            font-size: 0.9rem;
+            line-height: 1.5;
+            color: #555;
+        }
+
+        .step-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .step-number {
+            background: #764ba2;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .step-text {
+            font-weight: 600;
+            color: #764ba2;
+        }
+
+        .matrix-visualization {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .matrix-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .matrix-title {
+            font-weight: bold;
+            font-size: 0.9rem;
+            color: #764ba2;
+        }
+
+        .matrix-title.result {
+            color: #27ae60;
+        }
+
+        .matrix-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 3px;
+        }
+
+        .matrix-cell {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .matrix-cell.highlight-a {
+            background: #ffecb3;
+            border-color: #ff9800;
+            transform: scale(1.15);
+            box-shadow: 0 4px 8px rgba(255, 152, 0, 0.4);
+            border-width: 2px;
+            z-index: 10;
+        }
+
+        .matrix-cell.highlight-b {
+            background: #ffecb3;
+            border-color: #ff9800;
+            transform: scale(1.15);
+            box-shadow: 0 4px 8px rgba(255, 152, 0, 0.4);
+            border-width: 2px;
+            z-index: 10;
+        }
+
+        .matrix-cell.highlight-c {
+            background: #d4edda;
+            border-color: #28a745;
+            transform: scale(1.1);
+            box-shadow: 0 4px 8px rgba(40, 167, 69, 0.4);
+            border-width: 2px;
+            z-index: 10;
+        }
+
+        .matrix-cell.boundary {
+            background: #fff3cd;
+            border-color: #ffc107;
+            border-style: dashed;
+        }
+
+        .matrix-cell.padding {
+            background: #ffebee;
+            border-color: #ef5350;
+            color: #c62828;
+            font-style: italic;
+            font-weight: bold;
+            border-style: dashed;
+        }
+
+        .matrix-cell.padding-zero {
+            background: #ffcdd2;
+            border-color: #ef5350;
+            color: #b71c1c;
+            font-weight: bold;
+            border-style: dashed;
+            animation: pulse 1.5s infinite;
+        }
+
+        .matrix-cell.padding-zero.highlight-a,
+        .matrix-cell.padding-zero.highlight-b,
+        .matrix-cell.padding-zero.highlight-c {
+            background: #ef9a9a;
+            border-color: #c62828;
+            transform: scale(1.1);
+            box-shadow: 0 4px 8px rgba(198, 40, 40, 0.4);
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .operator {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .calculation-display {
+            background: #f8f9fa;
+            border: 2px solid #764ba2;
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            text-align: center;
+            max-width: 700px;
+            width: 100%;
+        }
+
+        .calculation-formula {
+            font-family: 'Courier New', monospace;
+            font-size: 0.95rem;
+            color: #764ba2;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            line-height: 1.4;
+        }
+
+        .calculation-result {
+            font-family: 'Courier New', monospace;
+            font-size: 1rem;
+            color: #27ae60;
+            font-weight: bold;
+            line-height: 1.4;
+        }
+
+        .boundary-warning {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+
+        .boundary-warning h4 {
+            color: #856404;
+            margin-bottom: 0.5rem;
+        }
+
+        .boundary-warning p {
+            font-size: 0.85rem;
+            color: #856404;
+        }
+
+        .code-example {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            border-radius: 8px;
+            padding: 1rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            line-height: 1.4;
+            overflow-x: auto;
+        }
+
+        .code-example .keyword {
+            color: #ff79c6;
+        }
+
+        .code-example .comment {
+            color: #6272a4;
+        }
+
+        .controls {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: auto;
+        }
+
+        .btn-primary {
+            flex: 1;
+            padding: 0.75rem;
+            background: #764ba2;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: #5a3d7a;
+        }
+
+        .btn-primary:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            flex: 1;
+            padding: 0.75rem;
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: #5a6268;
+        }
+
+        .btn-secondary:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .metrics-display {
+            background: #e8f4fd;
+            border: 2px solid #3498db;
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .metrics-title {
+            font-size: 1rem;
+            font-weight: bold;
+            color: #2980b9;
+            margin-bottom: 0.75rem;
+        }
+
+        .metrics-content {
+            font-size: 0.85rem;
+            color: #2980b9;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                flex-direction: column;
+                height: auto;
+            }
+
+            .sidebar {
+                max-width: 100%;
+            }
+
+            .matrix-cell {
+                width: 35px;
+                height: 35px;
+                font-size: 0.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Non-multiple Dimensions (5×5, TILE=2)</h1>
+        <div class="tab-container">
+            <button class="tab" onclick="window.location.href='matmul-4x4-dashboard.html'">Naive</button>
+            <button class="tab" onclick="window.location.href='matmul-tiling-dashboard.html'">TILE=2</button>
+            <button class="tab" onclick="window.location.href='matmul-tiling4-dashboard.html'">TILE=4</button>
+            <button class="tab active">Non-multiple</button>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="canvas-container">
+            <div class="matrix-visualization">
+                <div class="matrix-wrapper">
+                    <div class="matrix-title">Matrix A (5×5)</div>
+                    <div class="matrix-grid" id="matrixA"></div>
+                </div>
+                
+                <div class="operator">×</div>
+                
+                <div class="matrix-wrapper">
+                    <div class="matrix-title">Matrix B (5×5)</div>
+                    <div class="matrix-grid" id="matrixB"></div>
+                </div>
+                
+                <div class="operator">=</div>
+                
+                <div class="matrix-wrapper">
+                    <div class="matrix-title result">Matrix C = A×B</div>
+                    <div class="matrix-grid" id="matrixC"></div>
+                </div>
+            </div>
+            
+            <div class="calculation-display">
+                <div class="calculation-formula" id="mainFormula">Loading boundary condition example...</div>
+                <div class="calculation-result" id="mainResult">Click Next to see boundary handling</div>
+            </div>
+
+            <div class="boundary-warning" id="boundaryWarning">
+                <h4>⚠️ Boundary Condition Detected</h4>
+                <p id="boundaryText">Matrix dimension (5) is not a multiple of tile size (2)</p>
+                <div style="margin-top: 0.5rem; font-size: 0.8rem; color: #856404;">
+                    <strong>Legend:</strong> <span style="color: #b71c1c; font-weight: bold;">Red "0" cells</span> = Padding zeros added to complete the tile
+                </div>
+            </div>
+
+            <div class="metrics-display">
+                <div class="metrics-title">Non-multiple Impact</div>
+                <div class="metrics-content" id="metricsContent">
+                    Total tiles needed: 9 (3×3 grid)<br>
+                    Full tiles: 4 | Partial tiles: 5<br>
+                    Boundary checks required: Yes
+                </div>
+            </div>
+        </div>
+
+        <div class="sidebar">
+            <div class="step-indicator">
+                <div class="step-number" id="stepNumber">1</div>
+                <div class="step-text" id="stepText">Block (0,0), Full Tile</div>
+            </div>
+
+            <div class="info-card">
+                <h3>Current Operation</h3>
+                <p id="currentOperation">Processing full tile at block (0,0)</p>
+            </div>
+
+            <div class="info-card">
+                <h3>Boundary Handling</h3>
+                <p id="boundaryHandling">No boundary check needed - full tile</p>
+                <p id="paddingExplanation" style="font-size: 0.8rem; color: #666; margin-top: 0.5rem; display: none;">
+                    <strong style="color: #b71c1c;">Red "0" cells</strong> are padding zeros added by CUDA
+                </p>
+            </div>
+
+            <div class="info-card">
+                <h3>CUDA Boundary Check Code</h3>
+                <div class="code-example" id="codeExample">
+<span class="keyword">if</span> (row < N && col < N) {
+    sA[ty][tx] = A[row][col];
+} <span class="keyword">else</span> {
+    sA[ty][tx] = 0; <span class="comment">// Padding</span>
+}
+                </div>
+            </div>
+
+            <div class="info-card">
+                <h3>Tile Statistics</h3>
+                <p id="tileStats" style="font-size: 0.85rem; color: #555; line-height: 1.4;">
+                    Tile size: 2×2<br>
+                    Elements in this tile: 4<br>
+                    Boundary elements: 0
+                </p>
+            </div>
+
+            <div class="controls">
+                <button class="btn-secondary" id="prevBtn" onclick="previousStep()">← Previous</button>
+                <button class="btn-primary" id="nextBtn" onclick="nextStep()">Next →</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Matrix data (5x5 - not a multiple of TILE=2)
+        const matrixA = [
+            [1, 2, 3, 4, 5],
+            [6, 7, 8, 9, 10],
+            [11, 12, 13, 14, 15],
+            [16, 17, 18, 19, 20],
+            [21, 22, 23, 24, 25]
+        ];
+
+        const matrixB = [
+            [2, 3, 1, 4, 2],
+            [3, 1, 4, 2, 3],
+            [1, 4, 2, 3, 1],
+            [4, 2, 3, 1, 4],
+            [2, 3, 1, 4, 2]
+        ];
+
+        const matrixC = [
+            [0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0]
+        ];
+
+        // Calculate result matrix
+        for (let i = 0; i < 5; i++) {
+            for (let j = 0; j < 5; j++) {
+                for (let k = 0; k < 5; k++) {
+                    matrixC[i][j] += matrixA[i][k] * matrixB[k][j];
+                }
+            }
+        }
+
+        // Tiling configuration
+        const TILE = 2;
+        const N = 5; // Matrix dimension
+        const numBlocks = Math.ceil(N / TILE); // 3 blocks in each dimension
+
+        // Step sequence for demonstration
+        const stepSequence = [
+            {
+                step: 1,
+                blockRow: 0,
+                blockCol: 0,
+                isFullTile: true,
+                aRowStart: 0,
+                aRowEnd: 2,
+                aColStart: 0,
+                aColEnd: 2,
+                bRowStart: 0,
+                bRowEnd: 2,
+                bColStart: 0,
+                bColEnd: 2,
+                cRowStart: 0,
+                cRowEnd: 2,
+                cColStart: 0,
+                cColEnd: 2,
+                operation: "Processing full tile at block (0,0)",
+                boundary: "No boundary check needed - full tile",
+                code: `<span class="keyword">if</span> (row < N && col < N) {
+    sA[ty][tx] = A[row][col];
+} <span class="keyword">else</span> {
+    sA[ty][tx] = 0; <span class="comment">// Padding</span>
+}`,
+                tileStats: "Tile size: 2×2<br>Elements in this tile: 4<br>Boundary elements: 0",
+                formula: "Block (0,0): Full 2×2 tile - A[0:2,0:2] × B[0:2,0:2]",
+                result: "All 4 elements valid - no padding needed"
+            },
+            {
+                step: 2,
+                blockRow: 0,
+                blockCol: 1,
+                isFullTile: true,
+                aRowStart: 0,
+                aRowEnd: 2,
+                aColStart: 2,
+                aColEnd: 4,
+                bRowStart: 2,
+                bRowEnd: 4,
+                bColStart: 0,
+                bColEnd: 2,
+                cRowStart: 0,
+                cRowEnd: 2,
+                cColStart: 2,
+                cColEnd: 4,
+                operation: "Processing full tile at block (0,1)",
+                boundary: "No boundary check needed - full tile",
+                code: `<span class="keyword">if</span> (row < N && col < N) {
+    sA[ty][tx] = A[row][col];
+} <span class="keyword">else</span> {
+    sA[ty][tx] = 0; <span class="comment">// Padding</span>
+}`,
+                tileStats: "Tile size: 2×2<br>Elements in this tile: 4<br>Boundary elements: 0",
+                formula: "Block (0,1): Full 2×2 tile - A[0:2,2:4] × B[2:4,0:2]",
+                result: "All 4 elements valid - no padding needed"
+            },
+            {
+                step: 3,
+                blockRow: 0,
+                blockCol: 2,
+                isFullTile: false,
+                aRowStart: 0,
+                aRowEnd: 2,
+                aColStart: 4,
+                aColEnd: 5,
+                bRowStart: 4,
+                bRowEnd: 5,
+                bColStart: 0,
+                bColEnd: 2,
+                cRowStart: 0,
+                cRowEnd: 2,
+                cColStart: 4,
+                cColEnd: 5,
+                operation: "Processing PARTIAL tile at block (0,2) - BOUNDARY!",
+                boundary: "⚠️ BOUNDARY: Only 2 elements instead of 4",
+                code: `<span class="keyword">if</span> (row < N && col < N) {
+    sA[ty][tx] = A[row][col];
+} <span class="keyword">else</span> {
+    sA[ty][tx] = 0; <span class="comment">// Pad with zeros!</span>
+}`,
+                tileStats: "Tile size: 2×2<br>Elements in this tile: 2<br>Boundary elements: 2",
+                formula: "Block (0,2): PARTIAL tile - A[0:2,4:5] × B[4:5,0:2]",
+                result: "⚠️ Only 2 valid elements - 2 positions padded with zeros"
+            },
+            {
+                step: 4,
+                blockRow: 1,
+                blockCol: 0,
+                isFullTile: true,
+                aRowStart: 2,
+                aRowEnd: 4,
+                aColStart: 0,
+                aColEnd: 2,
+                bRowStart: 0,
+                bRowEnd: 2,
+                bColStart: 2,
+                bColEnd: 4,
+                cRowStart: 2,
+                cRowEnd: 4,
+                cColStart: 0,
+                cColEnd: 2,
+                operation: "Processing full tile at block (1,0)",
+                boundary: "No boundary check needed - full tile",
+                code: `<span class="keyword">if</span> (row < N && col < N) {
+    sA[ty][tx] = A[row][col];
+} <span class="keyword">else</span> {
+    sA[ty][tx] = 0; <span class="comment">// Padding</span>
+}`,
+                tileStats: "Tile size: 2×2<br>Elements in this tile: 4<br>Boundary elements: 0",
+                formula: "Block (1,0): Full 2×2 tile - A[2:4,0:2] × B[0:2,2:4]",
+                result: "All 4 elements valid - no padding needed"
+            },
+            {
+                step: 5,
+                blockRow: 1,
+                blockCol: 1,
+                isFullTile: true,
+                aRowStart: 2,
+                aRowEnd: 4,
+                aColStart: 2,
+                aColEnd: 4,
+                bRowStart: 2,
+                bRowEnd: 4,
+                bColStart: 2,
+                bColEnd: 4,
+                cRowStart: 2,
+                cRowEnd: 4,
+                cColStart: 2,
+                cColEnd: 4,
+                operation: "Processing full tile at block (1,1)",
+                boundary: "No boundary check needed - full tile",
+                code: `<span class="keyword">if</span> (row < N && col < N) {
+    sA[ty][tx] = A[row][col];
+} <span class="keyword">else</span> {
+    sA[ty][tx] = 0; <span class="comment">// Padding</span>
+}`,
+                tileStats: "Tile size: 2×2<br>Elements in this tile: 4<br>Boundary elements: 0",
+                formula: "Block (1,1): Full 2×2 tile - A[2:4,2:4] × B[2:4,2:4]",
+                result: "All 4 elements valid - no padding needed"
+            },
+            {
+                step: 6,
+                blockRow: 1,
+                blockCol: 2,
+                isFullTile: false,
+                aRowStart: 2,
+                aRowEnd: 4,
+                aColStart: 4,
+                aColEnd: 5,
+                bRowStart: 4,
+                bRowEnd: 5,
+                bColStart: 2,
+                bColEnd: 4,
+                cRowStart: 2,
+                cRowEnd: 4,
+                cColStart: 4,
+                cColEnd: 5,
+                operation: "Processing PARTIAL tile at block (1,2) - BOUNDARY!",
+                boundary: "⚠️ BOUNDARY: Only 2 elements instead of 4",
+                code: `<span class="keyword">if</span> (row < N && col < N) {
+    sA[ty][tx] = A[row][col];
+} <span class="keyword">else</span> {
+    sA[ty][tx] = 0; <span class="comment">// Pad with zeros!</span>
+}`,
+                tileStats: "Tile size: 2×2<br>Elements in this tile: 2<br>Boundary elements: 2",
+                formula: "Block (1,2): PARTIAL tile - A[2:4,4:5] × B[4:5,2:4]",
+                result: "⚠️ Only 2 valid elements - 2 positions padded with zeros"
+            },
+            {
+                step: 7,
+                blockRow: 2,
+                blockCol: 0,
+                isFullTile: false,
+                aRowStart: 4,
+                aRowEnd: 5,
+                aColStart: 0,
+                aColEnd: 2,
+                bRowStart: 0,
+                bRowEnd: 2,
+                bColStart: 4,
+                bColEnd: 5,
+                cRowStart: 4,
+                cRowEnd: 5,
+                cColStart: 0,
+                cColEnd: 2,
+                operation: "Processing PARTIAL tile at block (2,0) - BOUNDARY!",
+                boundary: "⚠️ BOUNDARY: Only 2 elements instead of 4",
+                code: `<span class="keyword">if</span> (row < N && col < N) {
+    sA[ty][tx] = A[row][col];
+} <span class="keyword">else</span> {
+    sA[ty][tx] = 0; <span class="comment">// Pad with zeros!</span>
+}`,
+                tileStats: "Tile size: 2×2<br>Elements in this tile: 2<br>Boundary elements: 2",
+                formula: "Block (2,0): PARTIAL tile - A[4:5,0:2] × B[0:2,4:5]",
+                result: "⚠️ Only 2 valid elements - 2 positions padded with zeros"
+            },
+            {
+                step: 8,
+                blockRow: 2,
+                blockCol: 1,
+                isFullTile: false,
+                aRowStart: 4,
+                aRowEnd: 5,
+                aColStart: 2,
+                aColEnd: 4,
+                bRowStart: 2,
+                bRowEnd: 4,
+                bColStart: 4,
+                bColEnd: 5,
+                cRowStart: 4,
+                cRowEnd: 5,
+                cColStart: 2,
+                cColEnd: 4,
+                operation: "Processing PARTIAL tile at block (2,1) - BOUNDARY!",
+                boundary: "⚠️ BOUNDARY: Only 2 elements instead of 4",
+                code: `<span class="keyword">if</span> (row < N && col < N) {
+    sA[ty][tx] = A[row][col];
+} <span class="keyword">else</span> {
+    sA[ty][tx] = 0; <span class="comment">// Pad with zeros!</span>
+}`,
+                tileStats: "Tile size: 2×2<br>Elements in this tile: 2<br>Boundary elements: 2",
+                formula: "Block (2,1): PARTIAL tile - A[4:5,2:4] × B[2:4,4:5]",
+                result: "⚠️ Only 2 valid elements - 2 positions padded with zeros"
+            },
+            {
+                step: 9,
+                blockRow: 2,
+                blockCol: 2,
+                isFullTile: false,
+                aRowStart: 4,
+                aRowEnd: 5,
+                aColStart: 4,
+                aColEnd: 5,
+                bRowStart: 4,
+                bRowEnd: 5,
+                bColStart: 4,
+                bColEnd: 5,
+                cRowStart: 4,
+                cRowEnd: 5,
+                cColStart: 4,
+                cColEnd: 5,
+                operation: "Processing PARTIAL tile at block (2,2) - BOUNDARY!",
+                boundary: "⚠️ BOUNDARY: Only 1 element instead of 4",
+                code: `<span class="keyword">if</span> (row < N && col < N) {
+    sA[ty][tx] = A[row][col];
+} <span class="keyword">else</span> {
+    sA[ty][tx] = 0; <span class="comment">// Pad with zeros!</span>
+}`,
+                tileStats: "Tile size: 2×2<br>Elements in this tile: 1<br>Boundary elements: 3",
+                formula: "Block (2,2): PARTIAL tile - A[4:5,4:5] × B[4:5,4:5]",
+                result: "⚠️ Only 1 valid element - 3 positions padded with zeros"
+            }
+        ];
+
+        let currentStep = 0;
+        const totalSteps = stepSequence.length;
+
+        // Initialize matrices
+        function initializeMatrices() {
+            // Matrix A
+            const matrixAContainer = document.getElementById('matrixA');
+            matrixAContainer.innerHTML = '';
+            for (let i = 0; i < N; i++) {
+                for (let j = 0; j < N; j++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'matrix-cell';
+                    cell.id = `a-${i}-${j}`;
+                    cell.textContent = matrixA[i][j];
+                    matrixAContainer.appendChild(cell);
+                }
+            }
+
+            // Matrix B
+            const matrixBContainer = document.getElementById('matrixB');
+            matrixBContainer.innerHTML = '';
+            for (let i = 0; i < N; i++) {
+                for (let j = 0; j < N; j++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'matrix-cell';
+                    cell.id = `b-${i}-${j}`;
+                    cell.textContent = matrixB[i][j];
+                    matrixBContainer.appendChild(cell);
+                }
+            }
+
+            // Matrix C
+            const matrixCContainer = document.getElementById('matrixC');
+            matrixCContainer.innerHTML = '';
+            for (let i = 0; i < N; i++) {
+                for (let j = 0; j < N; j++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'matrix-cell';
+                    cell.id = `c-${i}-${j}`;
+                    cell.textContent = matrixC[i][j];
+                    matrixCContainer.appendChild(cell);
+                }
+            }
+        }
+
+        // Show padding cells for partial tiles
+        function showPaddingCells(containerId, rowStart, rowEnd, colStart, colEnd, blockRow, blockCol) {
+            const container = document.getElementById(containerId);
+            removePaddingCells(); // Clear existing padding cells first
+
+            // Calculate the full tile extent
+            const tileRowStart = blockRow;
+            const tileRowEnd = blockRow + TILE;
+            const tileColStart = blockCol;
+            const tileColEnd = blockCol + TILE;
+
+            // Check if we need padding
+            const needsRowExpansion = tileRowEnd > N;
+            const needsColExpansion = tileColEnd > N;
+
+            if (!needsRowExpansion && !needsColExpansion) return;
+
+            // Add padding indicators at boundaries
+            for (let i = tileRowStart; i < tileRowEnd; i++) {
+                for (let j = tileColStart; j < tileColEnd; j++) {
+                    if (i >= N || j >= N) {
+                        // This is a padding position - find nearest real cell
+                        const nearestI = Math.min(i, N - 1);
+                        const nearestJ = Math.min(j, N - 1);
+                        const prefix = containerId === 'matrixA' ? 'a' : containerId === 'matrixB' ? 'b' : 'c';
+                        const cell = document.getElementById(`${prefix}-${nearestI}-${nearestJ}`);
+                        
+                        if (cell) {
+                            // Create padding overlay
+                            const overlay = document.createElement('div');
+                            overlay.className = 'padding-overlay';
+                            overlay.innerHTML = '<span style="color: #b71c1c; font-weight: bold; font-size: 1.2rem;">0</span>';
+                            overlay.style.cssText = `
+                                position: absolute;
+                                width: 40px;
+                                height: 40px;
+                                background: #ffcdd2;
+                                border: 2px dashed #ef5350;
+                                border-radius: 6px;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                z-index: 100;
+                                animation: pulse 1.5s infinite;
+                            `;
+                            
+                            // Position overlay
+                            const cellRect = cell.getBoundingClientRect();
+                            const containerRect = container.getBoundingClientRect();
+                            
+                            const rowOffset = (i - nearestI) * 43; // 40px + 3px gap
+                            const colOffset = (j - nearestJ) * 43;
+                            
+                            overlay.style.left = `${cellRect.left - containerRect.left + colOffset}px`;
+                            overlay.style.top = `${cellRect.top - containerRect.top + rowOffset}px`;
+                            
+                            container.style.position = 'relative';
+                            container.appendChild(overlay);
+                        }
+                    }
+                }
+            }
+        }
+
+        function removePaddingCells() {
+            // Remove padding overlays
+            document.querySelectorAll('.padding-overlay').forEach(el => el.remove());
+            
+            // Reset grid templates if they were modified
+            ['matrixA', 'matrixB', 'matrixC'].forEach(id => {
+                const container = document.getElementById(id);
+                if (container.dataset.originalGrid) {
+                    container.style.gridTemplateColumns = container.dataset.originalGrid;
+                    delete container.dataset.originalGrid;
+                }
+                container.style.position = '';
+            });
+        }
+
+        // Update visualization
+        function updateVisualization() {
+            const step = stepSequence[currentStep];
+
+            // Clear all highlights and remove padding first
+            removePaddingCells();
+            
+            document.querySelectorAll('.matrix-cell').forEach(cell => {
+                cell.classList.remove('highlight-a', 'highlight-b', 'highlight-c', 'boundary', 'padding');
+            });
+
+            // Show padding cells for partial tiles FIRST (before highlighting)
+            if (!step.isFullTile) {
+                showPaddingCells('matrixA', step.aRowStart, step.aRowEnd, step.aColStart, step.aColEnd, step.blockRow, step.blockCol);
+                showPaddingCells('matrixB', step.bRowStart, step.bRowEnd, step.bColStart, step.bColEnd, step.blockRow, step.blockCol);
+                showPaddingCells('matrixC', step.cRowStart, step.cRowEnd, step.cColStart, step.cColEnd, step.blockRow, step.blockCol);
+            }
+
+            // Highlight current tile in A
+            for (let i = step.aRowStart; i < step.aRowEnd; i++) {
+                for (let j = step.aColStart; j < step.aColEnd; j++) {
+                    const cell = document.getElementById(`a-${i}-${j}`);
+                    if (cell) cell.classList.add('highlight-a');
+                }
+            }
+
+            // Highlight current tile in B
+            for (let i = step.bRowStart; i < step.bRowEnd; i++) {
+                for (let j = step.bColStart; j < step.bColEnd; j++) {
+                    const cell = document.getElementById(`b-${i}-${j}`);
+                    if (cell) cell.classList.add('highlight-b');
+                }
+            }
+
+            // Highlight current result block in C
+            for (let i = step.cRowStart; i < step.cRowEnd; i++) {
+                for (let j = step.cColStart; j < step.cColEnd; j++) {
+                    const cell = document.getElementById(`c-${i}-${j}`);
+                    if (cell) cell.classList.add('highlight-c');
+                }
+            }
+        }
+
+        // Update sidebar information
+        function updateSidebar() {
+            const step = stepSequence[currentStep];
+
+            document.getElementById('stepNumber').textContent = currentStep + 1;
+            document.getElementById('stepText').textContent = 
+                `Block (${step.blockRow},${step.blockCol}), ${step.isFullTile ? 'Full' : 'Partial'} Tile`;
+            document.getElementById('currentOperation').textContent = step.operation;
+            document.getElementById('boundaryHandling').textContent = step.boundary;
+            document.getElementById('codeExample').innerHTML = step.code;
+            document.getElementById('tileStats').innerHTML = step.tileStats;
+
+            // Show/hide padding explanation
+            const paddingExplanation = document.getElementById('paddingExplanation');
+            if (!step.isFullTile) {
+                paddingExplanation.style.display = 'block';
+            } else {
+                paddingExplanation.style.display = 'none';
+            }
+
+            // Update main calculation display
+            document.getElementById('mainFormula').textContent = step.formula;
+            document.getElementById('mainResult').textContent = step.result;
+
+            // Update boundary warning visibility
+            const boundaryWarning = document.getElementById('boundaryWarning');
+            if (!step.isFullTile) {
+                boundaryWarning.style.display = 'block';
+                document.getElementById('boundaryText').textContent = 
+                    `Block (${step.blockRow},${step.blockCol}): Partial tile detected!`;
+            } else {
+                boundaryWarning.style.display = 'none';
+            }
+
+            // Update button states
+            document.getElementById('prevBtn').disabled = currentStep === 0;
+            document.getElementById('nextBtn').disabled = currentStep === totalSteps - 1;
+        }
+
+        function nextStep() {
+            if (currentStep < totalSteps - 1) {
+                currentStep++;
+                updateVisualization();
+                updateSidebar();
+            }
+        }
+
+        function previousStep() {
+            if (currentStep > 0) {
+                currentStep--;
+                updateVisualization();
+                updateSidebar();
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeMatrices();
+            updateVisualization();
+            updateSidebar();
+        });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                nextStep();
+            } else if (e.key === 'ArrowLeft') {
+                previousStep();
+            }
+        });
+    </script>
+</body>
+</html>
