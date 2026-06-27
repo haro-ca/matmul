@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Who Is This Dude?</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* ===========================================
+           CSS CUSTOM PROPERTIES (THEME)
+           =========================================== */
+        :root {
+            /* Colors - Bold Signal */
+            --bg-primary: #1a1a1a;
+            --bg-gradient: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #1a1a1a 100%);
+            --card-bg: #FF5722;
+            --text-primary: #ffffff;
+            --text-on-card: #1a1a1a;
+            --text-secondary: #b0b0b0;
+            
+            /* Typography */
+            --font-display: 'Archivo Black', sans-serif;
+            --font-body: 'Space Grotesk', sans-serif;
+            --title-size: clamp(2rem, 6vw, 4rem);
+            --h2-size: clamp(1.5rem, 4vw, 2.5rem);
+            --body-size: clamp(0.9rem, 1.5vw, 1.2rem);
+            --small-size: clamp(0.75rem, 1.2vw, 1rem);
+            
+            /* Spacing */
+            --slide-padding: clamp(1.5rem, 4vw, 4rem);
+            --content-gap: clamp(0.8rem, 2vw, 1.5rem);
+            
+            /* Animation */
+            --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+            --duration-normal: 0.6s;
+        }
+
+        /* ===========================================
+           BASE STYLES
+           =========================================== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html, body {
+            height: 100%;
+            overflow-x: hidden;
+        }
+
+        html {
+            scroll-snap-type: y mandatory;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--bg-gradient);
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+
+        /* ===========================================
+           VIEWPORT FITTING: MANDATORY BASE STYLES
+           =========================================== */
+        
+        /* Each slide = exact viewport height */
+        .slide {
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh;
+            overflow: hidden;
+            scroll-snap-align: start;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Content container with flex for centering */
+        .slide-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            max-height: 100%;
+            overflow: hidden;
+            padding: var(--slide-padding);
+        }
+
+        /* ALL typography uses clamp() for responsive scaling */
+        :root {
+            --title-size: clamp(1.5rem, 5vw, 4rem);
+            --h2-size: clamp(1.25rem, 3.5vw, 2.5rem);
+            --h3-size: clamp(1rem, 2.5vw, 1.75rem);
+            --body-size: clamp(0.75rem, 1.5vw, 1.125rem);
+            --small-size: clamp(0.65rem, 1vw, 0.875rem);
+            --slide-padding: clamp(1rem, 4vw, 4rem);
+            --content-gap: clamp(0.5rem, 2vw, 2rem);
+            --element-gap: clamp(0.25rem, 1vw, 1rem);
+        }
+
+        /* Cards/containers use viewport-relative max sizes */
+        .card, .container, .content-box {
+            max-width: min(90vw, 1000px);
+            max-height: min(80vh, 700px);
+        }
+
+        /* Lists auto-scale with viewport */
+        .feature-list, .bullet-list {
+            gap: clamp(0.4rem, 1vh, 1rem);
+        }
+
+        .feature-list li, .bullet-list li {
+            font-size: var(--body-size);
+            line-height: 1.4;
+        }
+
+        /* Grids adapt to available space */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+            gap: clamp(0.5rem, 1.5vw, 1rem);
+        }
+
+        /* Images constrained to viewport */
+        img, .image-container {
+            max-width: 100%;
+            max-height: min(50vh, 400px);
+            object-fit: contain;
+        }
+
+        /* Responsive Breakpoints */
+        @media (max-height: 700px) {
+            :root {
+                --slide-padding: clamp(0.75rem, 3vw, 2rem);
+                --content-gap: clamp(0.4rem, 1.5vw, 1rem);
+                --title-size: clamp(1.25rem, 4.5vw, 2.5rem);
+                --h2-size: clamp(1rem, 3vw, 1.75rem);
+            }
+        }
+
+        @media (max-height: 600px) {
+            :root {
+                --slide-padding: clamp(0.5rem, 2.5vw, 1.5rem);
+                --content-gap: clamp(0.3rem, 1vw, 0.75rem);
+                --title-size: clamp(1.1rem, 4vw, 2rem);
+                --body-size: clamp(0.7rem, 1.2vw, 0.95rem);
+            }
+            .nav-dots, .keyboard-hint, .decorative {
+                display: none;
+            }
+        }
+
+        @media (max-height: 500px) {
+            :root {
+                --slide-padding: clamp(0.4rem, 2vw, 1rem);
+                --title-size: clamp(1rem, 3.5vw, 1.5rem);
+                --h2-size: clamp(0.9rem, 2.5vw, 1.25rem);
+                --body-size: clamp(0.65rem, 1vw, 0.85rem);
+            }
+        }
+
+        @media (max-width: 600px) {
+            :root {
+                --title-size: clamp(1.25rem, 7vw, 2.5rem);
+            }
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.2s !important;
+            }
+            html {
+                scroll-behavior: auto;
+            }
+        }
+
+        /* ===========================================
+           BOLD SIGNAL SPECIFIC STYLES
+           =========================================== */
+        
+        .slide {
+            background: var(--bg-gradient);
+            position: relative;
+        }
+
+        /* Section number */
+        .section-number {
+            font-family: var(--font-display);
+            font-size: clamp(4rem, 15vw, 12rem);
+            color: rgba(255, 255, 255, 0.03);
+            position: absolute;
+            top: clamp(1rem, 3vh, 2rem);
+            left: var(--slide-padding);
+            line-height: 1;
+            z-index: 1;
+        }
+
+        /* Navigation breadcrumbs */
+        .nav-breadcrumbs {
+            position: absolute;
+            top: var(--slide-padding);
+            right: var(--slide-padding);
+            display: flex;
+            gap: clamp(0.5rem, 1vw, 1rem);
+            z-index: 10;
+        }
+
+        .breadcrumb {
+            width: clamp(8px, 2vw, 12px);
+            height: clamp(8px, 2vw, 12px);
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .breadcrumb.active {
+            background: var(--card-bg);
+            transform: scale(1.2);
+        }
+
+        /* Bold card */
+        .bold-card {
+            background: var(--card-bg);
+            color: var(--text-on-card);
+            padding: clamp(2rem, 5vw, 4rem);
+            border-radius: clamp(0.5rem, 2vw, 1rem);
+            max-width: min(85vw, 700px);
+            position: relative;
+            z-index: 5;
+            box-shadow: 0 20px 60px rgba(255, 87, 34, 0.3);
+        }
+
+        .slide-title {
+            font-family: var(--font-display);
+            font-size: var(--title-size);
+            text-transform: uppercase;
+            line-height: 1.1;
+            margin-bottom: var(--content-gap);
+        }
+
+        /* Content list */
+        .content-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: clamp(0.6rem, 1.5vh, 1rem);
+        }
+
+        .content-list li {
+            font-size: var(--body-size);
+            font-weight: 500;
+            display: flex;
+            align-items: flex-start;
+            gap: clamp(0.5rem, 1vw, 0.75rem);
+        }
+
+        .content-list li::before {
+            content: "→";
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        /* Hot take styling */
+        .hot-take {
+            background: rgba(0, 0, 0, 0.1);
+            padding: clamp(0.5rem, 1vw, 0.75rem);
+            border-radius: clamp(0.25rem, 1vw, 0.5rem);
+            font-style: italic;
+            border-left: 3px solid rgba(0, 0, 0, 0.3);
+        }
+
+        /* Social links */
+        .social-links {
+            display: flex;
+            gap: clamp(1rem, 2vw, 2rem);
+            margin-top: var(--content-gap);
+            flex-wrap: wrap;
+        }
+
+        .social-link {
+            font-size: var(--small-size);
+            font-weight: 700;
+            color: var(--text-on-card);
+            text-decoration: none;
+            opacity: 0.8;
+            transition: opacity 0.3s ease;
+        }
+
+        .social-link:hover {
+            opacity: 1;
+        }
+
+        /* ===========================================
+           ANIMATIONS
+           =========================================== */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity var(--duration-normal) var(--ease-out-expo),
+                        transform var(--duration-normal) var(--ease-out-expo);
+        }
+
+        .slide.visible .reveal {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .reveal:nth-child(1) { transition-delay: 0.1s; }
+        .reveal:nth-child(2) { transition-delay: 0.2s; }
+        .reveal:nth-child(3) { transition-delay: 0.3s; }
+        .reveal:nth-child(4) { transition-delay: 0.4s; }
+        .reveal:nth-child(5) { transition-delay: 0.5s; }
+        .reveal:nth-child(6) { transition-delay: 0.6s; }
+
+        /* ===========================================
+           INLINE EDITING STYLES
+           =========================================== */
+        .edit-hotzone {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 80px;
+            height: 80px;
+            z-index: 10000;
+            cursor: pointer;
+        }
+
+        .edit-toggle {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            width: 44px;
+            height: 44px;
+            border: none;
+            border-radius: 50%;
+            background: var(--card-bg);
+            color: var(--text-on-card);
+            font-size: 1.2rem;
+            cursor: pointer;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease, transform 0.2s ease;
+            z-index: 10001;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .edit-toggle.show,
+        .edit-toggle.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .edit-toggle.active {
+            transform: scale(1.1);
+            background: #4CAF50;
+        }
+
+        [contenteditable="true"] {
+            outline: 2px dashed var(--card-bg);
+            outline-offset: 2px;
+            padding: 2px 4px;
+        }
+
+        [contenteditable="true"]:focus {
+            outline: 2px solid var(--card-bg);
+            background: rgba(255, 87, 34, 0.1);
+        }
+
+        /* ===========================================
+           PROGRESS BAR
+           =========================================== */
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 4px;
+            background: var(--card-bg);
+            width: 0%;
+            z-index: 1000;
+            transition: width 0.3s ease;
+        }
+
+        /* ===========================================
+           KEYBOARD HINT
+           =========================================== */
+        .keyboard-hint {
+            position: fixed;
+            bottom: clamp(0.75rem, 2vh, 1.5rem);
+            right: var(--slide-padding);
+            font-size: var(--small-size);
+            color: var(--text-secondary);
+            opacity: 0.6;
+            z-index: 100;
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-bar"></div>
+    
+    <div class="edit-hotzone"></div>
+    <button class="edit-toggle" id="editToggle" title="Edit mode (E)">✏️</button>
+    
+    <nav class="nav-breadcrumbs">
+        <div class="breadcrumb active"></div>
+    </nav>
+
+    <section class="slide">
+        <div class="section-number">01</div>
+        
+        <div class="slide-content">
+            <div class="bold-card">
+                <h1 class="slide-title reveal">who_is_this_dude</h1>
+                
+                <ul class="content-list">
+                    <li class="reveal">Hola, soy Carlos</li>
+                    <li class="reveal">Experiencia 8+ años en datos, ML, AI</li>
+                    <li class="reveal">
+                        <div class="social-links">
+                            <a href="https://x.com/hi1sort" class="social-link" target="_blank">X @hi1sort</a>
+                            <a href="https://linkedin.com/in/h1sort" class="social-link" target="_blank">in @h1sort</a>
+                        </div>
+                    </li>
+                    <li class="reveal">coffee cappuccino >>>> otras formas de café</li>
+                    <li class="reveal hot-take">hot_take: pandas es un pésimo framework</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <div class="keyboard-hint">Use arrow keys or scroll to navigate</div>
+
+    <script>
+        /* ===========================================
+           SLIDE PRESENTATION CONTROLLER
+           =========================================== */
+        class SlidePresentation {
+            constructor() {
+                this.slides = document.querySelectorAll('.slide');
+                this.currentSlide = 0;
+                this.setupIntersectionObserver();
+                this.setupKeyboardNav();
+                this.setupTouchNav();
+                this.setupProgressBar();
+                this.setupNavDots();
+            }
+
+            setupIntersectionObserver() {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('visible');
+                            const index = Array.from(this.slides).indexOf(entry.target);
+                            this.currentSlide = index;
+                            this.updateProgressBar();
+                            this.updateNavDots();
+                        }
+                    });
+                }, {
+                    threshold: 0.5
+                });
+
+                this.slides.forEach(slide => observer.observe(slide));
+            }
+
+            setupKeyboardNav() {
+                document.addEventListener('keydown', (e) => {
+                    // Skip if editing text
+                    if (e.target.getAttribute('contenteditable')) return;
+                    
+                    switch(e.key) {
+                        case 'ArrowDown':
+                        case 'PageDown':
+                        case ' ':
+                            e.preventDefault();
+                            this.nextSlide();
+                            break;
+                        case 'ArrowUp':
+                        case 'PageUp':
+                            e.preventDefault();
+                            this.prevSlide();
+                            break;
+                    }
+                });
+            }
+
+            setupTouchNav() {
+                let touchStartY = 0;
+                let touchEndY = 0;
+
+                document.addEventListener('touchstart', (e) => {
+                    touchStartY = e.changedTouches[0].screenY;
+                });
+
+                document.addEventListener('touchend', (e) => {
+                    touchEndY = e.changedTouches[0].screenY;
+                    this.handleSwipe();
+                });
+
+                this.handleSwipe = () => {
+                    const diff = touchStartY - touchEndY;
+                    if (Math.abs(diff) > 50) {
+                        if (diff > 0) {
+                            this.nextSlide();
+                        } else {
+                            this.prevSlide();
+                        }
+                    }
+                };
+            }
+
+            setupProgressBar() {
+                this.progressBar = document.querySelector('.progress-bar');
+                this.updateProgressBar();
+            }
+
+            updateProgressBar() {
+                const progress = ((this.currentSlide + 1) / this.slides.length) * 100;
+                this.progressBar.style.width = progress + '%';
+            }
+
+            setupNavDots() {
+                this.breadcrumbs = document.querySelectorAll('.breadcrumb');
+            }
+
+            updateNavDots() {
+                this.breadcrumbs.forEach((dot, index) => {
+                    dot.classList.toggle('active', index === this.currentSlide);
+                });
+            }
+
+            nextSlide() {
+                if (this.currentSlide < this.slides.length - 1) {
+                    this.currentSlide++;
+                    this.slides[this.currentSlide].scrollIntoView({ behavior: 'smooth' });
+                }
+            }
+
+            prevSlide() {
+                if (this.currentSlide > 0) {
+                    this.currentSlide--;
+                    this.slides[this.currentSlide].scrollIntoView({ behavior: 'smooth' });
+                }
+            }
+        }
+
+        /* ===========================================
+           INLINE EDITING CONTROLLER
+           =========================================== */
+        class InlineEditor {
+            constructor() {
+                this.isActive = false;
+                this.editableElements = [];
+                this.setupToggle();
+                this.setupHotzone();
+                this.setupKeyboardShortcut();
+                this.loadFromStorage();
+            }
+
+            setupToggle() {
+                this.toggleBtn = document.getElementById('editToggle');
+                this.toggleBtn.addEventListener('click', () => this.toggleEditMode());
+            }
+
+            setupHotzone() {
+                const hotzone = document.querySelector('.edit-hotzone');
+                const editToggle = this.toggleBtn;
+                let hideTimeout = null;
+
+                hotzone.addEventListener('mouseenter', () => {
+                    clearTimeout(hideTimeout);
+                    editToggle.classList.add('show');
+                });
+
+                hotzone.addEventListener('mouseleave', () => {
+                    hideTimeout = setTimeout(() => {
+                        if (!this.isActive) editToggle.classList.remove('show');
+                    }, 400);
+                });
+
+                editToggle.addEventListener('mouseenter', () => {
+                    clearTimeout(hideTimeout);
+                });
+
+                editToggle.addEventListener('mouseleave', () => {
+                    hideTimeout = setTimeout(() => {
+                        if (!this.isActive) editToggle.classList.remove('show');
+                    }, 400);
+                });
+
+                hotzone.addEventListener('click', () => {
+                    this.toggleEditMode();
+                });
+            }
+
+            setupKeyboardShortcut() {
+                document.addEventListener('keydown', (e) => {
+                    if ((e.key === 'e' || e.key === 'E') && !e.target.getAttribute('contenteditable')) {
+                        this.toggleEditMode();
+                    }
+                });
+            }
+
+            toggleEditMode() {
+                this.isActive = !this.isActive;
+                this.toggleBtn.classList.toggle('active', this.isActive);
+
+                if (this.isActive) {
+                    this.enableEditing();
+                } else {
+                    this.disableEditing();
+                    this.saveToStorage();
+                }
+            }
+
+            enableEditing() {
+                const editableSelectors = ['h1', 'h2', 'h3', 'p', 'li', 'a', '.slide-title'];
+                editableSelectors.forEach(selector => {
+                    document.querySelectorAll(selector).forEach(el => {
+                        el.setAttribute('contenteditable', 'true');
+                        this.editableElements.push(el);
+                    });
+                });
+            }
+
+            disableEditing() {
+                this.editableElements.forEach(el => {
+                    el.removeAttribute('contenteditable');
+                });
+                this.editableElements = [];
+            }
+
+            saveToStorage() {
+                const content = document.body.innerHTML;
+                localStorage.setItem('presentation_content', content);
+                console.log('Content saved to localStorage');
+            }
+
+            loadFromStorage() {
+                const saved = localStorage.getItem('presentation_content');
+                if (saved) {
+                    console.log('Found saved content in localStorage');
+                    // Optionally auto-load: document.body.innerHTML = saved;
+                }
+            }
+
+            exportFile() {
+                const html = document.documentElement.outerHTML;
+                const blob = new Blob([html], { type: 'text/html' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'presentation.html';
+                a.click();
+                URL.revokeObjectURL(url);
+            }
+        }
+
+        // Initialize
+        const presentation = new SlidePresentation();
+        const editor = new InlineEditor();
+    </script>
+</body>
+</html>
